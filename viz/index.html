@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Tool Dependency Graph — Composio</title>
+
+<!-- Cytoscape.js from CDN -->
+<script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+<!-- fcose layout — graceful fallback to cose if fails -->
+<script src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js" onerror="window.FCOSE_FAILED=true"></script>
+
+<!-- Data injected by build-viz.mjs -->
+<script src="graph-data.js"></script>
+
+<style>
+:root {
+  --bg: #0d0f14;
+  --surface: #151820;
+  --surface2: #1c2030;
+  --border: #2a2f45;
+  --text: #e2e6f0;
+  --text-dim: #7a8099;
+  --accent: #5b8dee;
+  --accent2: #a78bfa;
+
+  /* toolkit colors */
+  --google: #4ade80;
+  --github: #f97316;
+
+  /* edge kind colors */
+  --id-lookup: #5b8dee;
+  --resolver: #a78bfa;
+  --creator: #f59e0b;
+
+  /* acquisition colors */
+  --acq-user: #4ade80;
+  --acq-dep: #f87171;
+  --acq-either: #fbbf24;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── TOP BAR ── */
+#topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+#topbar h1 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+  white-space: nowrap;
+}
+#stats {
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+#search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 160px;
+  max-width: 300px;
+}
+#search {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 6px 10px 6px 30px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+#search:focus { border-color: var(--accent); }
+#search-icon {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-dim);
+  font-size: 13px;
+  pointer-events: none;
+}
+#search-count {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* controls */
+.ctrl-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ctrl-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+select, input[type=range] {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 12px;
+  padding: 4px 6px;
+  outline: none;
+}
+select:focus { border-color: var(--accent); }
+input[type=range] { padding: 0; height: 4px; cursor: pointer; width: 80px; accent-color: var(--accent); }
+
+#btn-demo, #btn-reset, #btn-all {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+#btn-demo { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+#btn-demo:hover { background: #4478d4; }
+#btn-reset { background: var(--surface2); color: var(--text-dim); }
+#btn-reset:hover { background: var(--border); color: var(--text); }
+#btn-all { background: var(--surface2); color: var(--text-dim); }
+#btn-all:hover { background: var(--border); color: var(--text); }
+
+/* ── MAIN LAYOUT ── */
+#main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+#cy {
+  flex: 1;
+  background: var(--bg);
+}
+
+/* ── SIDE PANEL ── */
+#panel {
+  width: 320px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width 0.2s;
+}
+#panel.hidden { width: 0; border-left: none; }
+#panel-inner {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+#panel-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  word-break: break-all;
+}
+#panel-subtitle {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+#panel-desc {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+.panel-section-head {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+  margin-top: 12px;
+}
+.param-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  background: var(--surface2);
+  border-radius: 5px;
+  margin-bottom: 4px;
+  border-left: 3px solid transparent;
+}
+.param-row.acq-user { border-left-color: var(--acq-user); }
+.param-row.acq-dependency { border-left-color: var(--acq-dep); }
+.param-row.acq-either { border-left-color: var(--acq-either); }
+.param-name { font-size: 12px; font-weight: 600; color: var(--text); }
+.param-meta { font-size: 11px; color: var(--text-dim); }
+.param-acq {
+  display: inline-block;
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+.param-acq.user { background: rgba(74,222,128,0.15); color: var(--acq-user); }
+.param-acq.dependency { background: rgba(248,113,113,0.15); color: var(--acq-dep); }
+.param-acq.either { background: rgba(251,191,36,0.15); color: var(--acq-either); }
+.produces-row {
+  font-size: 12px;
+  color: var(--text-dim);
+  padding: 4px 8px;
+  background: var(--surface2);
+  border-radius: 5px;
+  margin-bottom: 4px;
+}
+.produces-row span { color: var(--accent); }
+.edge-detail {
+  padding: 8px;
+  background: var(--surface2);
+  border-radius: 5px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.edge-detail strong { color: var(--text); }
+.edge-detail .val { color: var(--accent); word-break: break-all; }
+.conf-bar-wrap {
+  background: var(--border);
+  border-radius: 3px;
+  height: 5px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+.conf-bar { height: 100%; background: var(--accent); border-radius: 3px; }
+.badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.badge.id-lookup { background: rgba(91,141,238,0.2); color: var(--id-lookup); }
+.badge.resolver { background: rgba(167,139,250,0.2); color: var(--resolver); }
+.badge.creator { background: rgba(245,158,11,0.2); color: var(--creator); }
+.badge.googlesuper { background: rgba(74,222,128,0.15); color: var(--google); }
+.badge.github { background: rgba(249,115,22,0.15); color: var(--github); }
+#panel-close {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px 10px 0;
+}
+#panel-close button {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+#panel-close button:hover { background: var(--surface2); color: var(--text); }
+
+/* ── LEGEND ── */
+#legend {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 11px;
+  pointer-events: none;
+  z-index: 10;
+}
+#legend-toggle {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 11;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-dim);
+  font-size: 11px;
+  padding: 4px 8px;
+  cursor: pointer;
+  display: none;
+}
+.leg-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.leg-swatch {
+  width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0;
+}
+.leg-line {
+  width: 18px; height: 3px; border-radius: 2px; flex-shrink: 0;
+}
+.leg-head {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-dim);
+  margin-bottom: 5px;
+  margin-top: 6px;
+}
+.leg-head:first-child { margin-top: 0; }
+
+/* ── HINT OVERLAY ── */
+#hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+  z-index: 5;
+  transition: opacity 0.4s;
+}
+#hint p {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.8;
+}
+#hint strong { color: var(--text); }
+
+/* ── TOOLTIP ── */
+#tooltip {
+  position: absolute;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+  max-width: 260px;
+  pointer-events: none;
+  z-index: 20;
+  display: none;
+  line-height: 1.6;
+}
+#tooltip .tt-title { font-weight: 700; color: var(--text); margin-bottom: 3px; }
+#tooltip .tt-row { color: var(--text-dim); }
+#tooltip .tt-val { color: var(--accent); }
+
+/* ── CONFIDENCE LABEL ── */
+#conf-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  min-width: 28px;
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <h1>⬡ Dep Graph</h1>
+  <div id="stats">Loading...</div>
+
+  <div id="search-wrap">
+    <span id="search-icon">⌕</span>
+    <input id="search" type="text" placeholder="Search tool name/slug…" autocomplete="off"/>
+    <span id="search-count"></span>
+  </div>
+
+  <div class="ctrl-group">
+    <span class="ctrl-label">Toolkit</span>
+    <select id="filter-toolkit">
+      <option value="">All</option>
+      <option value="googlesuper">Google Super</option>
+      <option value="github">GitHub</option>
+    </select>
+  </div>
+
+  <div class="ctrl-group">
+    <span class="ctrl-label">Entity type</span>
+    <select id="filter-entity">
+      <option value="">All</option>
+    </select>
+  </div>
+
+  <div class="ctrl-group">
+    <span class="ctrl-label">Edge kind</span>
+    <select id="filter-kind">
+      <option value="">All</option>
+      <option value="id_lookup">id_lookup</option>
+      <option value="resolver">resolver</option>
+      <option value="creator">creator</option>
+    </select>
+  </div>
+
+  <div class="ctrl-group">
+    <span class="ctrl-label">Min conf</span>
+    <input id="filter-conf" type="range" min="0" max="100" value="0" step="5"/>
+    <span id="conf-label">0%</span>
+  </div>
+
+  <button id="btn-demo">▶ Demo</button>
+  <button id="btn-reset">↺ Reset</button>
+  <button id="btn-all">Show All</button>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="cy"></div>
+
+  <div id="panel" class="hidden">
+    <div id="panel-close"><button title="Close">✕</button></div>
+    <div id="panel-inner">
+      <div id="panel-title"></div>
+      <div id="panel-subtitle"></div>
+      <div id="panel-desc"></div>
+      <div id="panel-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div id="legend">
+  <div class="leg-head">Toolkits</div>
+  <div class="leg-row"><div class="leg-swatch" style="background:var(--google)"></div>Google Super</div>
+  <div class="leg-row"><div class="leg-swatch" style="background:var(--github)"></div>GitHub</div>
+  <div class="leg-head">Edge kind</div>
+  <div class="leg-row"><div class="leg-line" style="background:var(--id-lookup)"></div>id_lookup</div>
+  <div class="leg-row"><div class="leg-line" style="background:var(--resolver)"></div>resolver</div>
+  <div class="leg-row"><div class="leg-line" style="background:var(--creator)"></div>creator</div>
+  <div class="leg-head">Acquisition</div>
+  <div class="leg-row"><div class="leg-swatch" style="background:var(--acq-user);border-radius:50%"></div>user — ask the user</div>
+  <div class="leg-row"><div class="leg-swatch" style="background:var(--acq-dep);border-radius:50%"></div>dependency — must come from a tool</div>
+  <div class="leg-row"><div class="leg-swatch" style="background:var(--acq-either);border-radius:50%"></div>either — user or tool</div>
+</div>
+
+<!-- HINT -->
+<div id="hint">
+  <p><strong>Overview mode</strong><br/>
+  Top connected nodes per toolkit shown.<br/>
+  Search, filter, or click <strong>▶ Demo</strong> to explore.</p>
+</div>
+
+<!-- TOOLTIP -->
+<div id="tooltip"></div>
+
+<script>
+(function () {
+"use strict";
+
+// ── Guard: data must be loaded ──────────────────────────────────────────────
+if (!window.GRAPH_DATA) {
+  document.body.innerHTML = '<div style="padding:40px;color:#f87171;font-family:monospace">graph-data.js not found — run scripts/build-viz.mjs first</div>';
+  throw new Error("GRAPH_DATA missing");
+}
+
+const G = window.GRAPH_DATA;
+const { nodes, edges, meta, entity_types } = G;
+
+// ── Populate entity filter dropdown ───────────────────────────────────────
+const entitySel = document.getElementById("filter-entity");
+(entity_types || []).forEach(et => {
+  const o = document.createElement("option");
+  o.value = et.id;
+  o.textContent = et.name || et.id;
+  entitySel.appendChild(o);
+});
+
+// ── Update stats header ────────────────────────────────────────────────────
+document.getElementById("stats").textContent =
+  `${meta.tool_count || nodes.length} tools · ${meta.edge_count || edges.length} edges · ${(meta.toolkits || []).join(", ")}`;
+
+// ── Color helpers ─────────────────────────────────────────────────────────
+const TOOLKIT_COLOR = { googlesuper: "#4ade80", github: "#f97316" };
+const EDGE_COLOR = { id_lookup: "#5b8dee", resolver: "#a78bfa", creator: "#f59e0b" };
+
+function nodeColor(tk) { return TOOLKIT_COLOR[tk] || "#7a8099"; }
+function edgeColor(kind) { return EDGE_COLOR[kind] || "#5b8dee"; }
+
+// ── Build cytoscape elements ───────────────────────────────────────────────
+function buildElements(nodeIds, edgeFilter) {
+  const nset = new Set(nodeIds);
+  const cyNodes = nodes
+    .filter(n => nset.has(n.id))
+    .map(n => ({
+      data: {
+        id: n.id,
+        label: n.name || n.id,
+        toolkit: n.toolkit,
+        description: n.description,
+        params: n.params,
+        produces: n.produces,
+        // degree for sizing
+        degree: edges.filter(e => e.from === n.id || e.to === n.id).length,
+      }
+    }));
+
+  const cyEdges = edges
+    .filter(e => nset.has(e.from) && nset.has(e.to))
+    .filter(edgeFilter || (() => true))
+    .map(e => ({
+      data: {
+        id: `${e.from}→${e.to}→${e.param}`,
+        source: e.from,
+        target: e.to,
+        kind: e.kind,
+        entity_type: e.entity_type,
+        param: e.param,
+        source_path: e.source_path,
+        confidence: e.confidence,
+        note: e.note,
+      }
+    }));
+
+  return [...cyNodes, ...cyEdges];
+}
+
+// ── Default "overview" selection: top-N nodes per toolkit by degree ────────
+function getOverviewNodeIds(topN = 30) {
+  // compute degree
+  const deg = {};
+  nodes.forEach(n => { deg[n.id] = 0; });
+  edges.forEach(e => { deg[e.from] = (deg[e.from] || 0) + 1; deg[e.to] = (deg[e.to] || 0) + 1; });
+
+  const byToolkit = {};
+  nodes.forEach(n => {
+    if (!byToolkit[n.toolkit]) byToolkit[n.toolkit] = [];
+    byToolkit[n.toolkit].push(n);
+  });
+
+  const selected = new Set();
+  Object.values(byToolkit).forEach(group => {
+    group.sort((a, b) => (deg[b.id] || 0) - (deg[a.id] || 0));
+    group.slice(0, topN).forEach(n => selected.add(n.id));
+  });
+  return [...selected];
+}
+
+// ── Cytoscape init ─────────────────────────────────────────────────────────
+const cy = cytoscape({
+  container: document.getElementById("cy"),
+  elements: [],
+  style: [
+    {
+      selector: "node",
+      style: {
+        "background-color": (ele) => nodeColor(ele.data("toolkit")),
+        "label": "data(label)",
+        "color": "#e2e6f0",
+        "font-size": "9px",
+        "text-valign": "bottom",
+        "text-halign": "center",
+        "text-margin-y": "3px",
+        "text-max-width": "80px",
+        "text-wrap": "ellipsis",
+        "width": (ele) => Math.max(14, Math.min(40, 14 + (ele.data("degree") || 0) * 1.5)),
+        "height": (ele) => Math.max(14, Math.min(40, 14 + (ele.data("degree") || 0) * 1.5)),
+        "border-width": "1.5px",
+        "border-color": "#2a2f45",
+        "transition-property": "background-color, border-color, width, height",
+        "transition-duration": "0.15s",
+      }
+    },
+    {
+      selector: "node:selected",
+      style: {
+        "border-color": "#fff",
+        "border-width": "2.5px",
+      }
+    },
+    {
+      selector: "node.faded",
+      style: { "opacity": 0.18 }
+    },
+    {
+      selector: "node.highlighted",
+      style: {
+        "border-color": "#fff",
+        "border-width": "2.5px",
+        "opacity": 1,
+      }
+    },
+    {
+      selector: "edge",
+      style: {
+        "line-color": (ele) => edgeColor(ele.data("kind")),
+        "target-arrow-color": (ele) => edgeColor(ele.data("kind")),
+        "target-arrow-shape": "triangle",
+        "curve-style": "bezier",
+        "width": (ele) => Math.max(1, (ele.data("confidence") || 0.5) * 2.5),
+        "opacity": 0.75,
+        "arrow-scale": 0.7,
+        "transition-property": "opacity",
+        "transition-duration": "0.15s",
+      }
+    },
+    {
+      selector: "edge.faded",
+      style: { "opacity": 0.05 }
+    },
+    {
+      selector: "edge.highlighted",
+      style: { "opacity": 1, "width": 3 }
+    },
+  ],
+  layout: { name: "preset" },
+  wheelSensitivity: 0.3,
+});
+
+// ── Layout helper ──────────────────────────────────────────────────────────
+let layoutRunning = false;
+function runLayout(eles) {
+  if (layoutRunning) return;
+  layoutRunning = true;
+
+  const nodeCount = (eles || cy.nodes()).length;
+  const useFcose = !window.FCOSE_FAILED && typeof cytoscapeFcose !== "undefined";
+
+  // Register fcose if available and not yet registered
+  if (useFcose) {
+    try { cytoscape.use(cytoscapeFcose); } catch(e) { /* already registered */ }
+  }
+
+  const layoutName = useFcose ? "fcose" : "cose";
+  const layoutOpts = useFcose
+    ? {
+        name: "fcose",
+        quality: nodeCount > 200 ? "default" : "proof",
+        randomize: true,
+        animate: nodeCount < 300,
+        animationDuration: 600,
+        packComponents: true,
+        nodeRepulsion: 4500,
+        idealEdgeLength: 80,
+        edgeElasticity: 0.45,
+        gravity: 0.25,
+        nodeSeparation: 75,
+        stop: () => { layoutRunning = false; },
+      }
+    : {
+        name: "cose",
+        animate: nodeCount < 200,
+        animationDuration: 600,
+        nodeRepulsion: 4500,
+        idealEdgeLength: 80,
+        gravity: 10,
+        stop: () => { layoutRunning = false; },
+      };
+
+  cy.layout(layoutOpts).run();
+  if (!layoutOpts.animate) { layoutRunning = false; }
+}
+
+// ── Load a subset of nodes ─────────────────────────────────────────────────
+let currentNodeIds = [];
+
+function loadSubset(nodeIds, edgeFilter) {
+  currentNodeIds = nodeIds;
+  cy.elements().remove();
+  const els = buildElements(nodeIds, edgeFilter);
+  cy.add(els);
+  runLayout();
+  document.getElementById("hint").style.opacity = nodeIds.length > 0 ? "0" : "1";
+}
+
+// ── Active filters ─────────────────────────────────────────────────────────
+let filters = { toolkit: "", entity: "", kind: "", minConf: 0 };
+
+function edgePassesFilters(e) {
+  if (filters.entity && e.entity_type !== filters.entity) return false;
+  if (filters.kind && e.kind !== filters.kind) return false;
+  if (e.confidence < filters.minConf) return false;
+  return true;
+}
+
+function nodePassesFilters(n) {
+  if (filters.toolkit && n.toolkit !== filters.toolkit) return false;
+  return true;
+}
+
+// ── Apply filters / search ─────────────────────────────────────────────────
+function applyFilters(searchTerm) {
+  let matchedNodes;
+
+  if (searchTerm && searchTerm.trim().length > 0) {
+    const q = searchTerm.trim().toLowerCase();
+    matchedNodes = nodes.filter(n =>
+      n.id.toLowerCase().includes(q) ||
+      (n.name || "").toLowerCase().includes(q)
+    );
+    // expand to neighborhood
+    const coreIds = new Set(matchedNodes.map(n => n.id));
+    const neighborIds = new Set(coreIds);
+    edges.forEach(e => {
+      if (coreIds.has(e.from)) neighborIds.add(e.to);
+      if (coreIds.has(e.to)) neighborIds.add(e.from);
+    });
+    matchedNodes = nodes.filter(n => neighborIds.has(n.id));
+    document.getElementById("search-count").textContent = matchedNodes.length > 0 ? matchedNodes.length : "";
+  } else {
+    matchedNodes = null;
+    document.getElementById("search-count").textContent = "";
+  }
+
+  const baseNodes = (matchedNodes || getTopByDegree()).filter(nodePassesFilters);
+  const ids = baseNodes.map(n => n.id);
+  loadSubset(ids, edgePassesFilters);
+}
+
+// top nodes by degree respecting filters (for default overview)
+function getTopByDegree() {
+  const deg = {};
+  nodes.forEach(n => { deg[n.id] = 0; });
+  edges.filter(edgePassesFilters).forEach(e => {
+    deg[e.from] = (deg[e.from] || 0) + 1;
+    deg[e.to] = (deg[e.to] || 0) + 1;
+  });
+
+  const byToolkit = {};
+  nodes.forEach(n => {
+    if (!byToolkit[n.toolkit]) byToolkit[n.toolkit] = [];
+    byToolkit[n.toolkit].push(n);
+  });
+
+  const selected = [];
+  Object.values(byToolkit).forEach(group => {
+    const sorted = group.slice().sort((a, b) => (deg[b.id] || 0) - (deg[a.id] || 0));
+    // show top 30 per toolkit in overview
+    selected.push(...sorted.slice(0, 30));
+  });
+  return selected;
+}
+
+// ── Search input ───────────────────────────────────────────────────────────
+let searchTimer;
+const searchEl = document.getElementById("search");
+searchEl.addEventListener("input", () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => applyFilters(searchEl.value), 200);
+});
+
+// ── Filter controls ────────────────────────────────────────────────────────
+document.getElementById("filter-toolkit").addEventListener("change", e => {
+  filters.toolkit = e.target.value;
+  applyFilters(searchEl.value);
+});
+document.getElementById("filter-entity").addEventListener("change", e => {
+  filters.entity = e.target.value;
+  applyFilters(searchEl.value);
+});
+document.getElementById("filter-kind").addEventListener("change", e => {
+  filters.kind = e.target.value;
+  applyFilters(searchEl.value);
+});
+document.getElementById("filter-conf").addEventListener("input", e => {
+  filters.minConf = parseInt(e.target.value) / 100;
+  document.getElementById("conf-label").textContent = e.target.value + "%";
+  applyFilters(searchEl.value);
+});
+
+// ── Demo button ────────────────────────────────────────────────────────────
+document.getElementById("btn-demo").addEventListener("click", () => {
+  // Find flagship node
+  let flagship = nodes.find(n => n.id === "GOOGLESUPER_REPLY_TO_THREAD");
+  if (!flagship) {
+    // first node that has incoming edges
+    flagship = nodes.find(n => edges.some(e => e.to === n.id));
+  }
+  if (!flagship) { flagship = nodes[0]; }
+  if (!flagship) return;
+
+  // Clear search + filters
+  searchEl.value = "";
+  ["filter-toolkit","filter-entity","filter-kind"].forEach(id => { document.getElementById(id).value = ""; });
+  document.getElementById("filter-conf").value = 0;
+  document.getElementById("conf-label").textContent = "0%";
+  filters = { toolkit: "", entity: "", kind: "", minConf: 0 };
+
+  // Build neighborhood
+  const coreId = flagship.id;
+  const neighborIds = new Set([coreId]);
+  edges.forEach(e => {
+    if (e.from === coreId) neighborIds.add(e.to);
+    if (e.to === coreId) neighborIds.add(e.from);
+  });
+
+  loadSubset([...neighborIds], () => true);
+
+  // Highlight core node after layout settles
+  setTimeout(() => {
+    const ele = cy.getElementById(coreId);
+    if (ele.length) {
+      cy.nodes().addClass("faded"); cy.edges().addClass("faded");
+      const hood = ele.closedNeighborhood();
+      hood.removeClass("faded").addClass("highlighted");
+      cy.animate({ fit: { eles: hood, padding: 80 }, duration: 400 });
+      showNodePanel(flagship);
+    }
+  }, 800);
+});
+
+// ── Reset button ───────────────────────────────────────────────────────────
+document.getElementById("btn-reset").addEventListener("click", () => {
+  searchEl.value = "";
+  ["filter-toolkit","filter-entity","filter-kind"].forEach(id => { document.getElementById(id).value = ""; });
+  document.getElementById("filter-conf").value = 0;
+  document.getElementById("conf-label").textContent = "0%";
+  filters = { toolkit: "", entity: "", kind: "", minConf: 0 };
+  cy.nodes().removeClass("faded highlighted");
+  cy.edges().removeClass("faded highlighted");
+  hidePanel();
+  applyFilters("");
+});
+
+// ── Show all button ────────────────────────────────────────────────────────
+document.getElementById("btn-all").addEventListener("click", () => {
+  const ids = nodes.filter(nodePassesFilters).map(n => n.id);
+  loadSubset(ids, edgePassesFilters);
+});
+
+// ── Panel helpers ──────────────────────────────────────────────────────────
+const panel = document.getElementById("panel");
+const panelTitle = document.getElementById("panel-title");
+const panelSubtitle = document.getElementById("panel-subtitle");
+const panelDesc = document.getElementById("panel-desc");
+const panelBody = document.getElementById("panel-body");
+
+function showPanel() { panel.classList.remove("hidden"); }
+function hidePanel() { panel.classList.add("hidden"); }
+document.getElementById("panel-close").querySelector("button").addEventListener("click", hidePanel);
+
+function badgeHtml(cls, text) {
+  return `<span class="badge ${cls}">${text}</span>`;
+}
+
+function showNodePanel(nodeData) {
+  panelTitle.textContent = nodeData.name || nodeData.id;
+  panelSubtitle.innerHTML = `<code style="font-size:10px;color:var(--text-dim)">${nodeData.id}</code> &nbsp; ${badgeHtml(nodeData.toolkit, nodeData.toolkit)}`;
+  panelDesc.textContent = nodeData.description || "";
+
+  let html = "";
+
+  const params = nodeData.params || [];
+  if (params.length > 0) {
+    html += `<div class="panel-section-head">Parameters</div>`;
+    params.forEach(p => {
+      const acq = p.acquisition || "user";
+      html += `<div class="param-row acq-${acq}">
+        <div class="param-name">${p.name}${p.required ? ' <span style="color:var(--acq-dep)">*</span>' : ''}</div>
+        <div class="param-meta">${p.type || "string"} · ${p.entity_type || "plain input"}</div>
+        <span class="param-acq ${acq}">${acq}</span>
+        ${p.description ? `<div class="param-meta" style="margin-top:2px">${p.description}</div>` : ""}
+      </div>`;
+    });
+  }
+
+  const produces = nodeData.produces || [];
+  if (produces.length > 0) {
+    html += `<div class="panel-section-head">Produces</div>`;
+    produces.forEach(p => {
+      html += `<div class="produces-row"><span>${p.entity_type}</span> &nbsp;<span style="color:var(--text-dim);font-size:10px">${p.json_path || ""}</span></div>`;
+    });
+  }
+
+  // Incoming edges (producers)
+  const inEdges = edges.filter(e => e.to === nodeData.id);
+  if (inEdges.length > 0) {
+    html += `<div class="panel-section-head">Producers feeding this tool</div>`;
+    inEdges.forEach(e => {
+      const fromNode = nodes.find(n => n.id === e.from);
+      html += `<div class="produces-row">
+        <span>${fromNode ? fromNode.name : e.from}</span>
+        &nbsp;<span class="badge ${e.kind.replace("_","-")}">${e.kind}</span>
+        &nbsp;<span style="color:var(--text-dim);font-size:10px">→ ${e.param}</span>
+      </div>`;
+    });
+  }
+
+  // Outgoing edges (consumers)
+  const outEdges = edges.filter(e => e.from === nodeData.id);
+  if (outEdges.length > 0) {
+    html += `<div class="panel-section-head">Tools this feeds</div>`;
+    outEdges.forEach(e => {
+      const toNode = nodes.find(n => n.id === e.to);
+      html += `<div class="produces-row">
+        <span>${toNode ? toNode.name : e.to}</span>
+        &nbsp;<span class="badge ${e.kind.replace("_","-")}">${e.kind}</span>
+        &nbsp;<span style="color:var(--text-dim);font-size:10px">param: ${e.param}</span>
+      </div>`;
+    });
+  }
+
+  panelBody.innerHTML = html;
+  showPanel();
+}
+
+function showEdgePanel(edgeData) {
+  const fromNode = nodes.find(n => n.id === edgeData.source);
+  const toNode = nodes.find(n => n.id === edgeData.target);
+  panelTitle.textContent = "Edge";
+  panelSubtitle.innerHTML = `<span class="badge ${edgeData.kind.replace("_","-")}">${edgeData.kind}</span>`;
+  panelDesc.textContent = edgeData.note || "";
+
+  const confPct = Math.round((edgeData.confidence || 0) * 100);
+  panelBody.innerHTML = `<div class="edge-detail">
+    <div><strong>From</strong> <span class="val">${fromNode ? fromNode.name : edgeData.source}</span></div>
+    <div><strong>To</strong> <span class="val">${toNode ? toNode.name : edgeData.target}</span></div>
+    <div><strong>Entity type</strong> <span class="val">${edgeData.entity_type || "—"}</span></div>
+    <div><strong>Param satisfied</strong> <span class="val">${edgeData.param || "—"}</span></div>
+    <div><strong>Source path</strong> <span class="val">${edgeData.source_path || "—"}</span></div>
+    <div><strong>Confidence</strong> ${confPct}%
+      <div class="conf-bar-wrap"><div class="conf-bar" style="width:${confPct}%"></div></div>
+    </div>
+  </div>`;
+  showPanel();
+}
+
+// ── Cytoscape event handlers ───────────────────────────────────────────────
+cy.on("tap", "node", evt => {
+  const nd = evt.target.data();
+  const fullNode = nodes.find(n => n.id === nd.id);
+  cy.nodes().removeClass("faded highlighted");
+  cy.edges().removeClass("faded highlighted");
+  const hood = evt.target.closedNeighborhood();
+  cy.nodes().not(hood).addClass("faded");
+  cy.edges().not(hood.connectedEdges()).addClass("faded");
+  hood.removeClass("faded").addClass("highlighted");
+  hood.connectedEdges().removeClass("faded").addClass("highlighted");
+  showNodePanel(fullNode || nd);
+});
+
+cy.on("tap", "edge", evt => {
+  const ed = evt.target.data();
+  cy.nodes().removeClass("faded highlighted");
+  cy.edges().removeClass("faded highlighted");
+  evt.target.addClass("highlighted");
+  cy.getElementById(ed.source).addClass("highlighted");
+  cy.getElementById(ed.target).addClass("highlighted");
+  showEdgePanel(ed);
+});
+
+cy.on("tap", evt => {
+  if (evt.target === cy) {
+    cy.nodes().removeClass("faded highlighted");
+    cy.edges().removeClass("faded highlighted");
+  }
+});
+
+// Edge tooltip on mouseover
+const tooltip = document.getElementById("tooltip");
+cy.on("mouseover", "edge", evt => {
+  const ed = evt.target.data();
+  const fromNode = nodes.find(n => n.id === ed.source);
+  const toNode = nodes.find(n => n.id === ed.target);
+  tooltip.innerHTML = `
+    <div class="tt-title">${ed.kind}</div>
+    <div class="tt-row">from <span class="tt-val">${fromNode ? fromNode.name : ed.source}</span></div>
+    <div class="tt-row">to <span class="tt-val">${toNode ? toNode.name : ed.target}</span></div>
+    <div class="tt-row">entity: <span class="tt-val">${ed.entity_type}</span></div>
+    <div class="tt-row">param: <span class="tt-val">${ed.param}</span> · conf: <span class="tt-val">${Math.round((ed.confidence||0)*100)}%</span></div>
+  `;
+  tooltip.style.display = "block";
+});
+cy.on("mouseout", "edge", () => { tooltip.style.display = "none"; });
+cy.on("mousemove", evt => {
+  if (tooltip.style.display === "block") {
+    tooltip.style.left = (evt.originalEvent.clientX + 14) + "px";
+    tooltip.style.top = (evt.originalEvent.clientY - 10) + "px";
+  }
+});
+
+// Node tooltip on mouseover
+cy.on("mouseover", "node", evt => {
+  const nd = evt.target.data();
+  const inDeg = edges.filter(e => e.to === nd.id).length;
+  const outDeg = edges.filter(e => e.from === nd.id).length;
+  tooltip.innerHTML = `
+    <div class="tt-title">${nd.label}</div>
+    <div class="tt-row" style="color:var(--text-dim);font-size:11px">${nd.id}</div>
+    <div class="tt-row">toolkit: <span class="tt-val">${nd.toolkit}</span></div>
+    <div class="tt-row">producers: <span class="tt-val">${inDeg}</span> · consumers: <span class="tt-val">${outDeg}</span></div>
+  `;
+  tooltip.style.display = "block";
+});
+cy.on("mouseout", "node", () => { tooltip.style.display = "none"; });
+
+// ── Initial load ───────────────────────────────────────────────────────────
+applyFilters("");
+
+})();
+</script>
+</body>
+</html>

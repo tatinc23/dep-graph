@@ -1,0 +1,18 @@
+{
+  "meta": {"toolkits": ["googlesuper","github"], "tool_count": 4, "edge_count": 3, "generated_by": "stub for parallel dev"},
+  "entity_types": [
+    {"id":"gmail.thread_id","name":"Gmail Thread ID","description":"Opaque id of a Gmail thread","acquisition":"dependency"},
+    {"id":"email_address","name":"Email Address","description":"Recipient email","acquisition":"either"}
+  ],
+  "nodes": [
+    {"id":"GOOGLESUPER_LIST_THREADS","toolkit":"googlesuper","name":"List Threads","description":"Lists threads","params":[],"produces":[{"entity_type":"gmail.thread_id","json_path":"data.threads[].id"}]},
+    {"id":"GOOGLESUPER_REPLY_TO_THREAD","toolkit":"googlesuper","name":"Reply To Thread","description":"Replies","params":[{"name":"thread_id","required":true,"type":"string","entity_type":"gmail.thread_id","acquisition":"dependency","description":"thread id"}],"produces":[]},
+    {"id":"GOOGLESUPER_SEARCH_PEOPLE","toolkit":"googlesuper","name":"Search People","description":"Search contacts","params":[],"produces":[{"entity_type":"email_address","json_path":"data.results[].emailAddresses[].value"}]},
+    {"id":"GOOGLESUPER_SEND_EMAIL","toolkit":"googlesuper","name":"Send Email","description":"Sends email","params":[{"name":"recipient_email","required":true,"type":"string","entity_type":"email_address","acquisition":"either","description":"to"}],"produces":[]}
+  ],
+  "edges": [
+    {"from":"GOOGLESUPER_LIST_THREADS","to":"GOOGLESUPER_REPLY_TO_THREAD","entity_type":"gmail.thread_id","param":"thread_id","source_path":"data.threads[].id","kind":"id_lookup","confidence":0.95,"note":""},
+    {"from":"GOOGLESUPER_SEARCH_PEOPLE","to":"GOOGLESUPER_SEND_EMAIL","entity_type":"email_address","param":"recipient_email","source_path":"data.results[].emailAddresses[].value","kind":"resolver","confidence":0.9,"note":"name -> email"},
+    {"from":"GOOGLESUPER_LIST_THREADS","to":"GOOGLESUPER_SEND_EMAIL","entity_type":"email_address","param":"recipient_email","source_path":"data.threads[].from","kind":"id_lookup","confidence":0.6,"note":""}
+  ]
+}
