@@ -113,3 +113,17 @@ Running against `data/graph.stub.json` (4 nodes, 3 edges):
 - GT-07 fails (stub REPLY_TO_THREAD node omits `recipient_email` param)
 - All others report `[INVALID]` because only 4 of 1 000+ nodes are present — expected
 - 1 sanity violation caught in the stub (a `LIST_THREADS → SEND_EMAIL:recipient_email` edge where the producer's `produces[]` array doesn't list `email_address`)
+
+## Live demo
+
+**https://composio-depgraph.pages.dev** — the interactive graph, deployed (also depgraph.tatinc.us, DNS propagating). Click "Demo" for the readme's flagship example.
+
+## Planner CLI (what the graph is for)
+
+`node scripts/plan.mjs GOOGLESUPER_REPLY_TO_THREAD [--depth 2] [--json]`
+
+`scripts/plan.mjs` turns the graph into an actionable pre-execution plan for any of the 1046 tools: `user` params become "ask the user", `dependency` params get a ranked producer recommendation (preferring cheap id_lookup reads over creator calls, then confidence) with alternatives counted, and `either` params surface as "ask the user OR resolve via …". `--depth` recurses into the recommended producer's own dependencies (with cycle detection), and `--json` emits the same plan as structured data an agent can consume directly to sequence tool calls. Fuzzy slug suggestions on a miss.
+
+## Edge precision (LLM judge)
+
+`scripts/judge.mjs` drew a stratified, seeded 100-edge sample across all entity types and asked claude-sonnet-4.6 (OpenRouter) whether each producer genuinely yields a value usable as the consumer's param. Result: **82% precision** (id_lookup 82.7%, creator 76.5%, resolver 100%). The 18 invalid edges trace to four root causes — ID subtype conflation (10), direction errors (3), creator-returns-wrong-resource (3), cross-toolkit name collisions (2) — and manual review suggests 3-4 are judge false negatives, putting true precision at ~84-86%. Full results in data/judge-results.json; the failure taxonomy is the roadmap for the next typing iteration (subtype-aware entity types, toolkit-scoped matching).

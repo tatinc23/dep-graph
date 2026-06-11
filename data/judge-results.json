@@ -1,0 +1,1312 @@
+{
+  "meta": {
+    "seed": 42,
+    "sample_size": 100,
+    "judged": 100,
+    "errors": 0,
+    "valid": 82,
+    "invalid": 18,
+    "precision": 82,
+    "generated_at": "2026-06-11T21:19:15.782Z"
+  },
+  "by_kind": {
+    "creator": {
+      "valid": 13,
+      "total": 17,
+      "precision": 76.5
+    },
+    "id_lookup": {
+      "valid": 67,
+      "total": 81,
+      "precision": 82.7
+    },
+    "resolver": {
+      "valid": 2,
+      "total": 2,
+      "precision": 100
+    }
+  },
+  "by_confidence": {
+    ">=0.9": {
+      "valid": 63,
+      "total": 77,
+      "precision": 81.8
+    },
+    "0.7-0.9": {
+      "valid": 19,
+      "total": 23,
+      "precision": 82.6
+    },
+    "<0.7": {
+      "valid": 0,
+      "total": 0,
+      "precision": null
+    }
+  },
+  "invalid_edges": [
+    {
+      "from": "GITHUB_DOWNLOAD_JOB_LOGS_FOR_A_WORKFLOW_RUN",
+      "to": "GITHUB_RE_RUN_A_WORKFLOW",
+      "param": "run_id",
+      "entity_type": "github.run_id",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "reason": "Downloading job logs returns log data, not a workflow run_id."
+    },
+    {
+      "from": "GITHUB_CREATE_AN_ISSUE_COMMENT",
+      "to": "GITHUB_CREATE_REACTION_FOR_A_COMMIT_COMMENT",
+      "param": "comment_id",
+      "entity_type": "github.comment_id",
+      "kind": "creator",
+      "confidence": 0.9,
+      "reason": "Issue comment ID differs semantically from a commit comment ID."
+    },
+    {
+      "from": "GOOGLESUPER_GET_TASK_LIST",
+      "to": "GOOGLESUPER_PATCH_TASK",
+      "param": "task_id",
+      "entity_type": "tasks.task_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "reason": "Getting a task list returns list metadata, not individual task IDs."
+    },
+    {
+      "from": "GITHUB_LIST_JOBS_FOR_A_WORKFLOW_RUN",
+      "to": "GITHUB_GET_WORKFLOW_RUN_USAGE",
+      "param": "run_id",
+      "entity_type": "github.run_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "reason": "List jobs takes run_id as input; it doesn't produce a new run_id."
+    },
+    {
+      "from": "GOOGLESUPER_CREATE_TASK_LIST",
+      "to": "GOOGLESUPER_DELETE_TASK",
+      "param": "task_id",
+      "entity_type": "tasks.task_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "reason": "Creating a task list returns a list ID, not a task ID."
+    },
+    {
+      "from": "GITHUB_CREATE_A_DISCUSSION_COMMENT",
+      "to": "GITHUB_DELETE_TEAM_DISCUSSION_REACTION",
+      "param": "discussion_number",
+      "entity_type": "github.discussion_number",
+      "kind": "creator",
+      "confidence": 0.9,
+      "reason": "Creating a comment does not return or create a discussion number."
+    },
+    {
+      "from": "GITHUB_CREATE_A_CODESPACE_FROM_A_PULL_REQUEST",
+      "to": "GITHUB_CHECK_IF_A_PULL_REQUEST_HAS_BEEN_MERGED",
+      "param": "pull_number",
+      "entity_type": "github.pull_number",
+      "kind": "creator",
+      "confidence": 0.9,
+      "reason": "Creating a codespace from a PR does not return the pull number."
+    },
+    {
+      "from": "GITHUB_LIST_RUNNER_APPLICATIONS_FOR_A_REPOSITORY",
+      "to": "GITHUB_REMOVE_CUSTOM_LABEL_FROM_SELF_HOSTED_RUNNER",
+      "param": "runner_id",
+      "entity_type": "github.runner_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "reason": "Runner applications list returns binaries, not runner instance IDs."
+    },
+    {
+      "from": "GITHUB_LIST_ORGANIZATION_WEBHOOKS",
+      "to": "GITHUB_UPDATE_A_REPOSITORY_WEBHOOK",
+      "param": "hook_id",
+      "entity_type": "github.hook_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "reason": "Org webhooks have different IDs than repository webhooks."
+    },
+    {
+      "from": "GITHUB_SEARCH_USERS",
+      "to": "GITHUB_LIST_DISCUSSIONS",
+      "param": "org",
+      "entity_type": "github.org",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "reason": "User search returns users, not organization names."
+    },
+    {
+      "from": "GOOGLESUPER_FIND_FREE_SLOTS",
+      "to": "GOOGLESUPER_UPDATE_ACL_RULE",
+      "param": "calendar_id",
+      "entity_type": "calendar.calendar_id",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "reason": "Find free slots consumes calendar IDs but does not return them."
+    },
+    {
+      "from": "GITHUB_GET_COMMIT_SIGNATURE_PROTECTION",
+      "to": "GITHUB_REPO_S_LIST_COMMITS",
+      "param": "sha",
+      "entity_type": "github.commit_sha",
+      "kind": "id_lookup",
+      "confidence": 0.85,
+      "reason": "Signature protection returns branch protection status, not a commit SHA."
+    },
+    {
+      "from": "GITHUB_CREATE_A_DEPLOYMENT_BRANCH_POLICY",
+      "to": "GITHUB_GET_A_DEPLOYMENT",
+      "param": "deployment_id",
+      "entity_type": "github.deployment_id",
+      "kind": "creator",
+      "confidence": 0.9,
+      "reason": "Creating a branch policy does not return a deployment ID."
+    },
+    {
+      "from": "GITHUB_LIST_REPOSITORIES_ACCESSIBLE_TO_THE_APP_INSTALLATION",
+      "to": "GITHUB_LIST_REPOSITORIES_ACCESSIBLE_TO_THE_USER_ACCESS_TOKEN",
+      "param": "installation_id",
+      "entity_type": "github.installation_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "reason": "Tool lists repositories, not installation IDs as output."
+    },
+    {
+      "from": "GITHUB_LIST_LABELS_FOR_A_SELF_HOSTED_RUNNER_FOR_A_REPOSITORY",
+      "to": "GOOGLESUPER_FETCH_EMAILS",
+      "param": "label_ids",
+      "entity_type": "gmail.label_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "reason": "GitHub runner labels are unrelated to Gmail label IDs."
+    },
+    {
+      "from": "GOOGLESUPER_LIST_THREADS",
+      "to": "GOOGLESUPER_MOVE_TO_TRASH",
+      "param": "message_id",
+      "entity_type": "gmail.message_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "reason": "Thread listing returns thread IDs, not individual message IDs."
+    },
+    {
+      "from": "GITHUB_ISSUES_LIST_EVENTS_FOR_REPO",
+      "to": "GOOGLESUPER_DELETE_EVENT",
+      "param": "event_id",
+      "entity_type": "calendar.event_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "reason": "GitHub issue events are not Google Calendar events; different domains."
+    },
+    {
+      "from": "GITHUB_LIST_LABELS_FOR_A_REPOSITORY",
+      "to": "GITHUB_UPDATE_A_RELEASE_ASSET",
+      "param": "label",
+      "entity_type": "github.label_name",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "reason": "Repository labels are not asset labels; semantically different entities."
+    }
+  ],
+  "all_results": [
+    {
+      "id": "GOOGLESUPER_CREATE_EMAIL_DRAFT||GOOGLESUPER_DELETE_DRAFT||draft_id||42",
+      "from": "GOOGLESUPER_CREATE_EMAIL_DRAFT",
+      "to": "GOOGLESUPER_DELETE_DRAFT",
+      "param": "draft_id",
+      "entity_type": "gmail.draft_id",
+      "kind": "creator",
+      "confidence": 0.9,
+      "valid": true,
+      "reason": "Creating a draft returns a draft_id usable for deletion."
+    },
+    {
+      "id": "GITHUB_DOWNLOAD_JOB_LOGS_FOR_A_WORKFLOW_RUN||GITHUB_RE_RUN_A_WORKFLOW||run_id||42",
+      "from": "GITHUB_DOWNLOAD_JOB_LOGS_FOR_A_WORKFLOW_RUN",
+      "to": "GITHUB_RE_RUN_A_WORKFLOW",
+      "param": "run_id",
+      "entity_type": "github.run_id",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "valid": false,
+      "reason": "Downloading job logs returns log data, not a workflow run_id."
+    },
+    {
+      "id": "GITHUB_CREATE_AN_ISSUE_COMMENT||GITHUB_CREATE_REACTION_FOR_A_COMMIT_COMMENT||comment_id||42",
+      "from": "GITHUB_CREATE_AN_ISSUE_COMMENT",
+      "to": "GITHUB_CREATE_REACTION_FOR_A_COMMIT_COMMENT",
+      "param": "comment_id",
+      "entity_type": "github.comment_id",
+      "kind": "creator",
+      "confidence": 0.9,
+      "valid": false,
+      "reason": "Issue comment ID differs semantically from a commit comment ID."
+    },
+    {
+      "id": "GITHUB_GET_A_RELEASE_BY_TAG_NAME||GITHUB_DELETE_A_RELEASE||release_id||42",
+      "from": "GITHUB_GET_A_RELEASE_BY_TAG_NAME",
+      "to": "GITHUB_DELETE_A_RELEASE",
+      "param": "release_id",
+      "entity_type": "github.release_id",
+      "kind": "id_lookup",
+      "confidence": 0.85,
+      "valid": true,
+      "reason": "Getting a release by tag returns the release_id needed for deletion."
+    },
+    {
+      "id": "GITHUB_LIST_REPOSITORIES_FOR_THE_AUTHENTICATED_USER||GITHUB_CREATE_AN_ISSUE_COMMENT||repo||42",
+      "from": "GITHUB_LIST_REPOSITORIES_FOR_THE_AUTHENTICATED_USER",
+      "to": "GITHUB_CREATE_AN_ISSUE_COMMENT",
+      "param": "repo",
+      "entity_type": "github.repo",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "valid": true,
+      "reason": "Listing repositories returns repo names usable as the repo parameter."
+    },
+    {
+      "id": "GOOGLESUPER_UPDATE_DOCUMENT_MARKDOWN||GOOGLESUPER_REPLACE_ALL_TEXT||document_id||42",
+      "from": "GOOGLESUPER_UPDATE_DOCUMENT_MARKDOWN",
+      "to": "GOOGLESUPER_REPLACE_ALL_TEXT",
+      "param": "document_id",
+      "entity_type": "docs.document_id",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "valid": true,
+      "reason": "Updating a document operates on a document_id usable for further edits."
+    },
+    {
+      "id": "GITHUB_LIST_PROJECT_CARDS||GITHUB_GET_A_PROJECT_CARD||card_id||42",
+      "from": "GITHUB_LIST_PROJECT_CARDS",
+      "to": "GITHUB_GET_A_PROJECT_CARD",
+      "param": "card_id",
+      "entity_type": "github.card_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listing project cards returns card_ids usable to fetch a specific card."
+    },
+    {
+      "id": "GOOGLESUPER_GET_TASK_LIST||GOOGLESUPER_PATCH_TASK||task_id||42",
+      "from": "GOOGLESUPER_GET_TASK_LIST",
+      "to": "GOOGLESUPER_PATCH_TASK",
+      "param": "task_id",
+      "entity_type": "tasks.task_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": false,
+      "reason": "Getting a task list returns list metadata, not individual task IDs."
+    },
+    {
+      "id": "GITHUB_LIST_ORGANIZATION_REPOSITORIES||GITHUB_GET_A_REPOSITORY_README||repo||42",
+      "from": "GITHUB_LIST_ORGANIZATION_REPOSITORIES",
+      "to": "GITHUB_GET_A_REPOSITORY_README",
+      "param": "repo",
+      "entity_type": "github.repo",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "valid": true,
+      "reason": "Listing org repositories returns repo names usable for fetching README."
+    },
+    {
+      "id": "GITHUB_SEARCH_REPOSITORIES||GITHUB_LIST_REACTIONS_FOR_A_PULL_REQUEST_REVIEW_COMMENT||owner||42",
+      "from": "GITHUB_SEARCH_REPOSITORIES",
+      "to": "GITHUB_LIST_REACTIONS_FOR_A_PULL_REQUEST_REVIEW_COMMENT",
+      "param": "owner",
+      "entity_type": "github.owner",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "valid": true,
+      "reason": "Search results include repository owner names usable as owner parameter."
+    },
+    {
+      "id": "GOOGLESUPER_LIST_PERMISSIONS||GOOGLESUPER_GET_PERMISSION||permission_id||42",
+      "from": "GOOGLESUPER_LIST_PERMISSIONS",
+      "to": "GOOGLESUPER_GET_PERMISSION",
+      "param": "permission_id",
+      "entity_type": "drive.permission_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "List permissions returns permission IDs usable for get permission."
+    },
+    {
+      "id": "GITHUB_LIST_BRANCHES||GITHUB_SYNC_A_FORK_BRANCH_WITH_THE_UPSTREAM_REPOSITORY||branch||42",
+      "from": "GITHUB_LIST_BRANCHES",
+      "to": "GITHUB_SYNC_A_FORK_BRANCH_WITH_THE_UPSTREAM_REPOSITORY",
+      "param": "branch",
+      "entity_type": "github.branch",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed branch names can identify which fork branch to sync."
+    },
+    {
+      "id": "GITHUB_LIST_JOBS_FOR_A_WORKFLOW_RUN||GITHUB_GET_WORKFLOW_RUN_USAGE||run_id||42",
+      "from": "GITHUB_LIST_JOBS_FOR_A_WORKFLOW_RUN",
+      "to": "GITHUB_GET_WORKFLOW_RUN_USAGE",
+      "param": "run_id",
+      "entity_type": "github.run_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": false,
+      "reason": "List jobs takes run_id as input; it doesn't produce a new run_id."
+    },
+    {
+      "id": "GOOGLESUPER_LIST_PERMISSIONS||GOOGLESUPER_DELETE_PERMISSION||permission_id||42",
+      "from": "GOOGLESUPER_LIST_PERMISSIONS",
+      "to": "GOOGLESUPER_DELETE_PERMISSION",
+      "param": "permission_id",
+      "entity_type": "drive.permission_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "List permissions returns permission IDs usable for deletion."
+    },
+    {
+      "id": "GITHUB_CREATE_A_REVIEW_FOR_A_PULL_REQUEST||GITHUB_GET_A_REVIEW_FOR_A_PULL_REQUEST||review_id||42",
+      "from": "GITHUB_CREATE_A_REVIEW_FOR_A_PULL_REQUEST",
+      "to": "GITHUB_GET_A_REVIEW_FOR_A_PULL_REQUEST",
+      "param": "review_id",
+      "entity_type": "github.review_id",
+      "kind": "creator",
+      "confidence": 0.9,
+      "valid": true,
+      "reason": "Creating a review returns a review ID retrievable afterward."
+    },
+    {
+      "id": "GITHUB_LIST_REPOSITORY_TAGS||GITHUB_CREATE_A_TAG_OBJECT||tag||42",
+      "from": "GITHUB_LIST_REPOSITORY_TAGS",
+      "to": "GITHUB_CREATE_A_TAG_OBJECT",
+      "param": "tag",
+      "entity_type": "github.tag",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed tag names can be reused as tag name input for creation."
+    },
+    {
+      "id": "GITHUB_LIST_PROJECT_COLUMNS||GITHUB_CREATE_A_PROJECT_CARD||column_id||42",
+      "from": "GITHUB_LIST_PROJECT_COLUMNS",
+      "to": "GITHUB_CREATE_A_PROJECT_CARD",
+      "param": "column_id",
+      "entity_type": "github.column_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed project columns return column IDs for card creation."
+    },
+    {
+      "id": "GOOGLESUPER_FIND_FOLDER||GOOGLESUPER_CREATE_FILE_FROM_TEXT||parent_id||42",
+      "from": "GOOGLESUPER_FIND_FOLDER",
+      "to": "GOOGLESUPER_CREATE_FILE_FROM_TEXT",
+      "param": "parent_id",
+      "entity_type": "drive.folder_id",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "valid": true,
+      "reason": "Found folder returns a folder ID usable as parent for new file."
+    },
+    {
+      "id": "GITHUB_LIST_RELEASE_ASSETS||GITHUB_GET_A_RELEASE_ASSET||asset_id||42",
+      "from": "GITHUB_LIST_RELEASE_ASSETS",
+      "to": "GITHUB_GET_A_RELEASE_ASSET",
+      "param": "asset_id",
+      "entity_type": "github.asset_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed release assets return asset IDs for individual retrieval."
+    },
+    {
+      "id": "GOOGLESUPER_GET_FILE_METADATA||GOOGLESUPER_UPDATE_FILE_PUT||file_id||42",
+      "from": "GOOGLESUPER_GET_FILE_METADATA",
+      "to": "GOOGLESUPER_UPDATE_FILE_PUT",
+      "param": "file_id",
+      "entity_type": "drive.file_id",
+      "kind": "id_lookup",
+      "confidence": 0.85,
+      "valid": true,
+      "reason": "File metadata retrieval returns file ID usable for update."
+    },
+    {
+      "id": "GITHUB_LIST_REPOSITORY_COLLABORATORS||GITHUB_GET_PROJECT_PERMISSION_FOR_A_USER||username||42",
+      "from": "GITHUB_LIST_REPOSITORY_COLLABORATORS",
+      "to": "GITHUB_GET_PROJECT_PERMISSION_FOR_A_USER",
+      "param": "username",
+      "entity_type": "github.username",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "valid": true,
+      "reason": "Collaborator list returns usernames usable for permission lookup."
+    },
+    {
+      "id": "GOOGLESUPER_CREATE_TASK_LIST||GOOGLESUPER_DELETE_TASK||task_id||42",
+      "from": "GOOGLESUPER_CREATE_TASK_LIST",
+      "to": "GOOGLESUPER_DELETE_TASK",
+      "param": "task_id",
+      "entity_type": "tasks.task_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": false,
+      "reason": "Creating a task list returns a list ID, not a task ID."
+    },
+    {
+      "id": "GITHUB_LIST_JOBS_FOR_A_WORKFLOW_RUN_ATTEMPT||GITHUB_DOWNLOAD_JOB_LOGS_FOR_A_WORKFLOW_RUN||job_id||42",
+      "from": "GITHUB_LIST_JOBS_FOR_A_WORKFLOW_RUN_ATTEMPT",
+      "to": "GITHUB_DOWNLOAD_JOB_LOGS_FOR_A_WORKFLOW_RUN",
+      "param": "job_id",
+      "entity_type": "github.job_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Job listing returns job IDs usable for log download."
+    },
+    {
+      "id": "GOOGLESUPER_FIND_FILE||GOOGLESUPER_UPDATE_FILE_REVISION_METADATA||file_id||42",
+      "from": "GOOGLESUPER_FIND_FILE",
+      "to": "GOOGLESUPER_UPDATE_FILE_REVISION_METADATA",
+      "param": "file_id",
+      "entity_type": "drive.file_id",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "valid": true,
+      "reason": "File search returns file IDs usable for revision metadata update."
+    },
+    {
+      "id": "GOOGLESUPER_GET_CONTACTS||GITHUB_MAP_A_COMMIT_AUTHOR||email||42",
+      "from": "GOOGLESUPER_GET_CONTACTS",
+      "to": "GITHUB_MAP_A_COMMIT_AUTHOR",
+      "param": "email",
+      "entity_type": "email_address",
+      "kind": "resolver",
+      "confidence": 0.8,
+      "valid": true,
+      "reason": "Contacts include email addresses usable for commit author mapping."
+    },
+    {
+      "id": "GITHUB_LIST_DELIVERIES_FOR_AN_ORGANIZATION_WEBHOOK||GITHUB_UPDATE_AN_ORGANIZATION_WEBHOOK||hook_id||42",
+      "from": "GITHUB_LIST_DELIVERIES_FOR_AN_ORGANIZATION_WEBHOOK",
+      "to": "GITHUB_UPDATE_AN_ORGANIZATION_WEBHOOK",
+      "param": "hook_id",
+      "entity_type": "github.hook_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Webhook deliveries are tied to a hook_id usable for updates."
+    },
+    {
+      "id": "GITHUB_LIST_BRANCHES||GITHUB_LIST_PULL_REQUESTS||head||42",
+      "from": "GITHUB_LIST_BRANCHES",
+      "to": "GITHUB_LIST_PULL_REQUESTS",
+      "param": "head",
+      "entity_type": "github.branch",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Branch names from list can filter pull requests by head branch."
+    },
+    {
+      "id": "GITHUB_CREATE_A_DISCUSSION_COMMENT||GITHUB_DELETE_TEAM_DISCUSSION_REACTION||discussion_number||42",
+      "from": "GITHUB_CREATE_A_DISCUSSION_COMMENT",
+      "to": "GITHUB_DELETE_TEAM_DISCUSSION_REACTION",
+      "param": "discussion_number",
+      "entity_type": "github.discussion_number",
+      "kind": "creator",
+      "confidence": 0.9,
+      "valid": false,
+      "reason": "Creating a comment does not return or create a discussion number."
+    },
+    {
+      "id": "GOOGLESUPER_FETCH_EMAILS||GOOGLESUPER_REPLY_TO_THREAD||thread_id||42",
+      "from": "GOOGLESUPER_FETCH_EMAILS",
+      "to": "GOOGLESUPER_REPLY_TO_THREAD",
+      "param": "thread_id",
+      "entity_type": "gmail.thread_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Fetched emails include thread IDs usable for replies."
+    },
+    {
+      "id": "GITHUB_LIST_ORGANIZATIONS_FOR_THE_AUTHENTICATED_USER||GITHUB_MANAGE_ACCESS_CONTROL_FOR_ORGANIZATION_CODESPACES||org||42",
+      "from": "GITHUB_LIST_ORGANIZATIONS_FOR_THE_AUTHENTICATED_USER",
+      "to": "GITHUB_MANAGE_ACCESS_CONTROL_FOR_ORGANIZATION_CODESPACES",
+      "param": "org",
+      "entity_type": "github.org",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "valid": true,
+      "reason": "Organization list returns org names usable for codespaces policy management."
+    },
+    {
+      "id": "GITHUB_CREATE_A_CHECK_RUN||GITHUB_GET_A_CHECK_RUN||check_run_id||42",
+      "from": "GITHUB_CREATE_A_CHECK_RUN",
+      "to": "GITHUB_GET_A_CHECK_RUN",
+      "param": "check_run_id",
+      "entity_type": "github.check_run_id",
+      "kind": "creator",
+      "confidence": 0.9,
+      "valid": true,
+      "reason": "Creating a check run returns an ID usable to retrieve it."
+    },
+    {
+      "id": "GITHUB_CREATE_A_CODESPACE_FROM_A_PULL_REQUEST||GITHUB_CHECK_IF_A_PULL_REQUEST_HAS_BEEN_MERGED||pull_number||42",
+      "from": "GITHUB_CREATE_A_CODESPACE_FROM_A_PULL_REQUEST",
+      "to": "GITHUB_CHECK_IF_A_PULL_REQUEST_HAS_BEEN_MERGED",
+      "param": "pull_number",
+      "entity_type": "github.pull_number",
+      "kind": "creator",
+      "confidence": 0.9,
+      "valid": false,
+      "reason": "Creating a codespace from a PR does not return the pull number."
+    },
+    {
+      "id": "GITHUB_SEARCH_REPOSITORIES||GITHUB_LIST_GITHUB_PAGES_BUILDS||owner||42",
+      "from": "GITHUB_SEARCH_REPOSITORIES",
+      "to": "GITHUB_LIST_GITHUB_PAGES_BUILDS",
+      "param": "owner",
+      "entity_type": "github.owner",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "valid": true,
+      "reason": "Search results include repository owner names usable as owner param."
+    },
+    {
+      "id": "GITHUB_LIST_MILESTONES||GITHUB_DELETE_A_MILESTONE||milestone_number||42",
+      "from": "GITHUB_LIST_MILESTONES",
+      "to": "GITHUB_DELETE_A_MILESTONE",
+      "param": "milestone_number",
+      "entity_type": "github.milestone_number",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed milestones include milestone numbers usable for deletion."
+    },
+    {
+      "id": "GITHUB_LIST_COMMIT_STATUSES_FOR_A_REFERENCE||GITHUB_GET_A_REFERENCE||ref||42",
+      "from": "GITHUB_LIST_COMMIT_STATUSES_FOR_A_REFERENCE",
+      "to": "GITHUB_GET_A_REFERENCE",
+      "param": "ref",
+      "entity_type": "github.ref",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "The reference used for listing statuses can be passed to get a reference."
+    },
+    {
+      "id": "GOOGLESUPER_LIST_DRAFTS||GOOGLESUPER_SEND_DRAFT||draft_id||42",
+      "from": "GOOGLESUPER_LIST_DRAFTS",
+      "to": "GOOGLESUPER_SEND_DRAFT",
+      "param": "draft_id",
+      "entity_type": "gmail.draft_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed drafts include draft IDs usable to send a specific draft."
+    },
+    {
+      "id": "GITHUB_LIST_DISCUSSIONS||GITHUB_DELETE_A_DISCUSSION||discussion_number||42",
+      "from": "GITHUB_LIST_DISCUSSIONS",
+      "to": "GITHUB_DELETE_A_DISCUSSION",
+      "param": "discussion_number",
+      "entity_type": "github.discussion_number",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed discussions include discussion numbers usable for deletion."
+    },
+    {
+      "id": "GITHUB_CREATE_A_DEPLOYMENT_STATUS||GITHUB_GET_A_DEPLOYMENT_STATUS||status_id||42",
+      "from": "GITHUB_CREATE_A_DEPLOYMENT_STATUS",
+      "to": "GITHUB_GET_A_DEPLOYMENT_STATUS",
+      "param": "status_id",
+      "entity_type": "github.status_id",
+      "kind": "creator",
+      "confidence": 0.9,
+      "valid": true,
+      "reason": "Creating a deployment status returns an ID usable to retrieve it."
+    },
+    {
+      "id": "GITHUB_LIST_ARTIFACTS_FOR_A_REPOSITORY||GITHUB_CREATE_A_GITHUB_PAGES_DEPLOYMENT||artifact_id||42",
+      "from": "GITHUB_LIST_ARTIFACTS_FOR_A_REPOSITORY",
+      "to": "GITHUB_CREATE_A_GITHUB_PAGES_DEPLOYMENT",
+      "param": "artifact_id",
+      "entity_type": "github.artifact_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed artifacts include IDs usable for Pages deployment creation."
+    },
+    {
+      "id": "GOOGLESUPER_LIST_SHARED_DRIVES||GOOGLESUPER_WATCH_CHANGES||drive_id||42",
+      "from": "GOOGLESUPER_LIST_SHARED_DRIVES",
+      "to": "GOOGLESUPER_WATCH_CHANGES",
+      "param": "drive_id",
+      "entity_type": "drive.drive_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed shared drives include drive IDs usable to watch changes."
+    },
+    {
+      "id": "GITHUB_CREATE_AN_ISSUE||GITHUB_LIST_ISSUE_EVENTS||issue_number||42",
+      "from": "GITHUB_CREATE_AN_ISSUE",
+      "to": "GITHUB_LIST_ISSUE_EVENTS",
+      "param": "issue_number",
+      "entity_type": "github.issue_number",
+      "kind": "creator",
+      "confidence": 0.9,
+      "valid": true,
+      "reason": "Created issue number can be used to list its events."
+    },
+    {
+      "id": "GOOGLESUPER_UPDATE_DOCUMENT_MARKDOWN||GOOGLESUPER_INSERT_TEXT_ACTION||document_id||42",
+      "from": "GOOGLESUPER_UPDATE_DOCUMENT_MARKDOWN",
+      "to": "GOOGLESUPER_INSERT_TEXT_ACTION",
+      "param": "document_id",
+      "entity_type": "docs.document_id",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "valid": true,
+      "reason": "Updated document ID can be used to insert text into same document."
+    },
+    {
+      "id": "GOOGLESUPER_FETCH_EMAILS||GOOGLESUPER_CREATE_EMAIL_DRAFT||thread_id||42",
+      "from": "GOOGLESUPER_FETCH_EMAILS",
+      "to": "GOOGLESUPER_CREATE_EMAIL_DRAFT",
+      "param": "thread_id",
+      "entity_type": "gmail.thread_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Fetched emails return thread IDs usable for reply drafts."
+    },
+    {
+      "id": "GITHUB_LIST_ARTIFACTS_FOR_A_REPOSITORY||GITHUB_DELETE_AN_ARTIFACT||artifact_id||42",
+      "from": "GITHUB_LIST_ARTIFACTS_FOR_A_REPOSITORY",
+      "to": "GITHUB_DELETE_AN_ARTIFACT",
+      "param": "artifact_id",
+      "entity_type": "github.artifact_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed artifact IDs can be used to delete a specific artifact."
+    },
+    {
+      "id": "GOOGLESUPER_SPREADSHEETS_SHEETS_COPY_TO||GOOGLESUPER_LIST_TABLES||spreadsheet_id||42",
+      "from": "GOOGLESUPER_SPREADSHEETS_SHEETS_COPY_TO",
+      "to": "GOOGLESUPER_LIST_TABLES",
+      "param": "spreadsheet_id",
+      "entity_type": "sheets.spreadsheet_id",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "valid": true,
+      "reason": "Destination spreadsheet ID from copy can be used to list its tables."
+    },
+    {
+      "id": "GITHUB_LIST_APP_INSTALLATIONS_ACCESSIBLE_TO_THE_USER_ACCESS_TOKEN||GITHUB_ADD_A_REPOSITORY_TO_AN_APP_INSTALLATION||installation_id||42",
+      "from": "GITHUB_LIST_APP_INSTALLATIONS_ACCESSIBLE_TO_THE_USER_ACCESS_TOKEN",
+      "to": "GITHUB_ADD_A_REPOSITORY_TO_AN_APP_INSTALLATION",
+      "param": "installation_id",
+      "entity_type": "github.installation_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed installation IDs can be used to add a repository to one."
+    },
+    {
+      "id": "GITHUB_LIST_RUNNER_APPLICATIONS_FOR_A_REPOSITORY||GITHUB_REMOVE_CUSTOM_LABEL_FROM_SELF_HOSTED_RUNNER||runner_id||42",
+      "from": "GITHUB_LIST_RUNNER_APPLICATIONS_FOR_A_REPOSITORY",
+      "to": "GITHUB_REMOVE_CUSTOM_LABEL_FROM_SELF_HOSTED_RUNNER",
+      "param": "runner_id",
+      "entity_type": "github.runner_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": false,
+      "reason": "Runner applications list returns binaries, not runner instance IDs."
+    },
+    {
+      "id": "GITHUB_CREATE_A_PROJECT_CARD||GITHUB_UPDATE_AN_EXISTING_PROJECT_CARD||card_id||42",
+      "from": "GITHUB_CREATE_A_PROJECT_CARD",
+      "to": "GITHUB_UPDATE_AN_EXISTING_PROJECT_CARD",
+      "param": "card_id",
+      "entity_type": "github.card_id",
+      "kind": "creator",
+      "confidence": 0.9,
+      "valid": true,
+      "reason": "Newly created card ID can be used to update that card."
+    },
+    {
+      "id": "GITHUB_LIST_REPOSITORY_INVITATIONS||GITHUB_UPDATE_A_REPOSITORY_INVITATION||invitation_id||42",
+      "from": "GITHUB_LIST_REPOSITORY_INVITATIONS",
+      "to": "GITHUB_UPDATE_A_REPOSITORY_INVITATION",
+      "param": "invitation_id",
+      "entity_type": "github.invitation_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed invitation IDs can be used to update a specific invitation."
+    },
+    {
+      "id": "GITHUB_LIST_TEAMS||GITHUB_DELETE_TEAM_DISCUSSION_COMMENT_REACTION||team_slug||42",
+      "from": "GITHUB_LIST_TEAMS",
+      "to": "GITHUB_DELETE_TEAM_DISCUSSION_COMMENT_REACTION",
+      "param": "team_slug",
+      "entity_type": "github.team_slug",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed teams return slugs usable for team-specific operations."
+    },
+    {
+      "id": "GITHUB_LIST_ORGANIZATION_WEBHOOKS||GITHUB_UPDATE_A_REPOSITORY_WEBHOOK||hook_id||42",
+      "from": "GITHUB_LIST_ORGANIZATION_WEBHOOKS",
+      "to": "GITHUB_UPDATE_A_REPOSITORY_WEBHOOK",
+      "param": "hook_id",
+      "entity_type": "github.hook_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": false,
+      "reason": "Org webhooks have different IDs than repository webhooks."
+    },
+    {
+      "id": "GITHUB_CREATE_A_COMMIT_COMMENT||GITHUB_DELETE_A_COMMIT_COMMENT_REACTION||comment_id||42",
+      "from": "GITHUB_CREATE_A_COMMIT_COMMENT",
+      "to": "GITHUB_DELETE_A_COMMIT_COMMENT_REACTION",
+      "param": "comment_id",
+      "entity_type": "github.comment_id",
+      "kind": "creator",
+      "confidence": 0.9,
+      "valid": true,
+      "reason": "Created commit comment ID can identify the comment for reaction deletion."
+    },
+    {
+      "id": "GITHUB_CREATE_A_REPOSITORY_PROJECT||GITHUB_CREATE_A_PROJECT_COLUMN||project_id||42",
+      "from": "GITHUB_CREATE_A_REPOSITORY_PROJECT",
+      "to": "GITHUB_CREATE_A_PROJECT_COLUMN",
+      "param": "project_id",
+      "entity_type": "github.project_id",
+      "kind": "creator",
+      "confidence": 0.9,
+      "valid": true,
+      "reason": "Created project ID directly used to add a column to that project."
+    },
+    {
+      "id": "GITHUB_LIST_REPOSITORY_TAGS||GITHUB_GET_A_RELEASE_BY_TAG_NAME||tag||42",
+      "from": "GITHUB_LIST_REPOSITORY_TAGS",
+      "to": "GITHUB_GET_A_RELEASE_BY_TAG_NAME",
+      "param": "tag",
+      "entity_type": "github.tag",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed tag names can identify a release by tag name."
+    },
+    {
+      "id": "GITHUB_SEARCH_USERS||GITHUB_LIST_DISCUSSIONS||org||42",
+      "from": "GITHUB_SEARCH_USERS",
+      "to": "GITHUB_LIST_DISCUSSIONS",
+      "param": "org",
+      "entity_type": "github.org",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "valid": false,
+      "reason": "User search returns users, not organization names."
+    },
+    {
+      "id": "GITHUB_LIST_CHECK_RUNS_FOR_A_GIT_REFERENCE||GITHUB_LIST_CODE_SCANNING_ALERTS_FOR_A_REPOSITORY||ref||42",
+      "from": "GITHUB_LIST_CHECK_RUNS_FOR_A_GIT_REFERENCE",
+      "to": "GITHUB_LIST_CODE_SCANNING_ALERTS_FOR_A_REPOSITORY",
+      "param": "ref",
+      "entity_type": "github.ref",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Git reference from check runs can filter code scanning alerts."
+    },
+    {
+      "id": "GITHUB_LIST_PULL_REQUESTS||GITHUB_PULLS_CREATE_REVIEW||pull_number||42",
+      "from": "GITHUB_LIST_PULL_REQUESTS",
+      "to": "GITHUB_PULLS_CREATE_REVIEW",
+      "param": "pull_number",
+      "entity_type": "github.pull_number",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed pull request numbers identify which PR to review."
+    },
+    {
+      "id": "GITHUB_LIST_MILESTONES||GITHUB_UPDATE_A_MILESTONE||milestone_number||42",
+      "from": "GITHUB_LIST_MILESTONES",
+      "to": "GITHUB_UPDATE_A_MILESTONE",
+      "param": "milestone_number",
+      "entity_type": "github.milestone_number",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed milestone numbers identify which milestone to update."
+    },
+    {
+      "id": "GOOGLESUPER_FIND_EVENT||GOOGLESUPER_UPDATE_EVENT||event_id||42",
+      "from": "GOOGLESUPER_FIND_EVENT",
+      "to": "GOOGLESUPER_UPDATE_EVENT",
+      "param": "event_id",
+      "entity_type": "calendar.event_id",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "valid": true,
+      "reason": "Found event ID directly used to update that event."
+    },
+    {
+      "id": "GITHUB_LIST_CHECK_RUNS_IN_A_CHECK_SUITE||GITHUB_UPDATE_A_CHECK_RUN||check_run_id||42",
+      "from": "GITHUB_LIST_CHECK_RUNS_IN_A_CHECK_SUITE",
+      "to": "GITHUB_UPDATE_A_CHECK_RUN",
+      "param": "check_run_id",
+      "entity_type": "github.check_run_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed check run IDs identify which check run to update."
+    },
+    {
+      "id": "GOOGLESUPER_GET_PEOPLE||GITHUB_UPDATE_AN_ORGANIZATION||email||42",
+      "from": "GOOGLESUPER_GET_PEOPLE",
+      "to": "GITHUB_UPDATE_AN_ORGANIZATION",
+      "param": "email",
+      "entity_type": "email_address",
+      "kind": "resolver",
+      "confidence": 0.8,
+      "valid": true,
+      "reason": "Person details can include email usable for org update."
+    },
+    {
+      "id": "GOOGLESUPER_FIND_FREE_SLOTS||GOOGLESUPER_UPDATE_ACL_RULE||calendar_id||42",
+      "from": "GOOGLESUPER_FIND_FREE_SLOTS",
+      "to": "GOOGLESUPER_UPDATE_ACL_RULE",
+      "param": "calendar_id",
+      "entity_type": "calendar.calendar_id",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "valid": false,
+      "reason": "Find free slots consumes calendar IDs but does not return them."
+    },
+    {
+      "id": "GOOGLESUPER_LIST_TASK_LISTS||GOOGLESUPER_UPDATE_TASK_LIST||tasklist_id||42",
+      "from": "GOOGLESUPER_LIST_TASK_LISTS",
+      "to": "GOOGLESUPER_UPDATE_TASK_LIST",
+      "param": "tasklist_id",
+      "entity_type": "tasks.tasklist_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listing task lists returns task list IDs usable for update."
+    },
+    {
+      "id": "GITHUB_LIST_TEAMS||GITHUB_REMOVE_TEAM_MEMBERSHIP_FOR_A_USER||team_slug||42",
+      "from": "GITHUB_LIST_TEAMS",
+      "to": "GITHUB_REMOVE_TEAM_MEMBERSHIP_FOR_A_USER",
+      "param": "team_slug",
+      "entity_type": "github.team_slug",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listing teams returns team slugs usable for membership removal."
+    },
+    {
+      "id": "GITHUB_CREATE_AN_ISSUE||GITHUB_ADD_LABELS_TO_AN_ISSUE||issue_number||42",
+      "from": "GITHUB_CREATE_AN_ISSUE",
+      "to": "GITHUB_ADD_LABELS_TO_AN_ISSUE",
+      "param": "issue_number",
+      "entity_type": "github.issue_number",
+      "kind": "creator",
+      "confidence": 0.9,
+      "valid": true,
+      "reason": "Creating an issue returns the issue number for label addition."
+    },
+    {
+      "id": "GITHUB_CREATE_A_GIST||GITHUB_LIST_GIST_COMMENTS||gist_id||42",
+      "from": "GITHUB_CREATE_A_GIST",
+      "to": "GITHUB_LIST_GIST_COMMENTS",
+      "param": "gist_id",
+      "entity_type": "github.gist_id",
+      "kind": "creator",
+      "confidence": 0.9,
+      "valid": true,
+      "reason": "Creating a gist returns a gist ID usable for listing comments."
+    },
+    {
+      "id": "GOOGLESUPER_SEARCH_SPREADSHEETS||GOOGLESUPER_EXECUTE_SQL||spreadsheet_id||42",
+      "from": "GOOGLESUPER_SEARCH_SPREADSHEETS",
+      "to": "GOOGLESUPER_EXECUTE_SQL",
+      "param": "spreadsheet_id",
+      "entity_type": "sheets.spreadsheet_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Searching spreadsheets returns spreadsheet IDs for SQL execution."
+    },
+    {
+      "id": "GITHUB_REPO_S_LIST_COMMITS||GITHUB_CREATE_A_SNAPSHOT_OF_DEPENDENCIES_FOR_A_REPOSITORY||sha||42",
+      "from": "GITHUB_REPO_S_LIST_COMMITS",
+      "to": "GITHUB_CREATE_A_SNAPSHOT_OF_DEPENDENCIES_FOR_A_REPOSITORY",
+      "param": "sha",
+      "entity_type": "github.commit_sha",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listing commits returns commit SHAs usable as snapshot SHA."
+    },
+    {
+      "id": "GOOGLESUPER_LIST_CALENDARS||GOOGLESUPER_UPDATE_EVENT||calendar_id||42",
+      "from": "GOOGLESUPER_LIST_CALENDARS",
+      "to": "GOOGLESUPER_UPDATE_EVENT",
+      "param": "calendar_id",
+      "entity_type": "calendar.calendar_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listing calendars returns calendar IDs usable for event update."
+    },
+    {
+      "id": "GITHUB_LIST_CODE_SCANNING_ALERTS_FOR_A_REPOSITORY||GITHUB_UPDATE_A_CODE_SCANNING_ALERT||alert_number||42",
+      "from": "GITHUB_LIST_CODE_SCANNING_ALERTS_FOR_A_REPOSITORY",
+      "to": "GITHUB_UPDATE_A_CODE_SCANNING_ALERT",
+      "param": "alert_number",
+      "entity_type": "github.alert_number",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listing alerts returns alert numbers usable for updating specific alert."
+    },
+    {
+      "id": "GOOGLESUPER_LIST_SHARED_DRIVES||GOOGLESUPER_GET_DRIVE||drive_id||42",
+      "from": "GOOGLESUPER_LIST_SHARED_DRIVES",
+      "to": "GOOGLESUPER_GET_DRIVE",
+      "param": "drive_id",
+      "entity_type": "drive.drive_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "List shared drives returns drive IDs usable to get a specific drive."
+    },
+    {
+      "id": "GITHUB_GET_COMMIT_SIGNATURE_PROTECTION||GITHUB_REPO_S_LIST_COMMITS||sha||42",
+      "from": "GITHUB_GET_COMMIT_SIGNATURE_PROTECTION",
+      "to": "GITHUB_REPO_S_LIST_COMMITS",
+      "param": "sha",
+      "entity_type": "github.commit_sha",
+      "kind": "id_lookup",
+      "confidence": 0.85,
+      "valid": false,
+      "reason": "Signature protection returns branch protection status, not a commit SHA."
+    },
+    {
+      "id": "GOOGLESUPER_FIND_FILE||GOOGLESUPER_CREATE_FILE_FROM_TEXT||parent_id||42",
+      "from": "GOOGLESUPER_FIND_FILE",
+      "to": "GOOGLESUPER_CREATE_FILE_FROM_TEXT",
+      "param": "parent_id",
+      "entity_type": "drive.folder_id",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "valid": true,
+      "reason": "Find file returns folder IDs usable as parent_id for file creation."
+    },
+    {
+      "id": "GITHUB_LIST_PROJECT_COLUMNS||GITHUB_DELETE_A_PROJECT_COLUMN||column_id||42",
+      "from": "GITHUB_LIST_PROJECT_COLUMNS",
+      "to": "GITHUB_DELETE_A_PROJECT_COLUMN",
+      "param": "column_id",
+      "entity_type": "github.column_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listing project columns returns column IDs usable for deletion."
+    },
+    {
+      "id": "GITHUB_LIST_JOBS_FOR_A_WORKFLOW_RUN||GITHUB_DOWNLOAD_JOB_LOGS_FOR_A_WORKFLOW_RUN||job_id||42",
+      "from": "GITHUB_LIST_JOBS_FOR_A_WORKFLOW_RUN",
+      "to": "GITHUB_DOWNLOAD_JOB_LOGS_FOR_A_WORKFLOW_RUN",
+      "param": "job_id",
+      "entity_type": "github.job_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listing workflow jobs returns job IDs usable for log download."
+    },
+    {
+      "id": "GITHUB_LIST_DEPLOYMENT_STATUSES||GITHUB_GET_A_DEPLOYMENT_STATUS||status_id||42",
+      "from": "GITHUB_LIST_DEPLOYMENT_STATUSES",
+      "to": "GITHUB_GET_A_DEPLOYMENT_STATUS",
+      "param": "status_id",
+      "entity_type": "github.status_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listing deployment statuses returns status IDs for specific retrieval."
+    },
+    {
+      "id": "GITHUB_CREATE_A_DEPLOYMENT_BRANCH_POLICY||GITHUB_GET_A_DEPLOYMENT||deployment_id||42",
+      "from": "GITHUB_CREATE_A_DEPLOYMENT_BRANCH_POLICY",
+      "to": "GITHUB_GET_A_DEPLOYMENT",
+      "param": "deployment_id",
+      "entity_type": "github.deployment_id",
+      "kind": "creator",
+      "confidence": 0.9,
+      "valid": false,
+      "reason": "Creating a branch policy does not return a deployment ID."
+    },
+    {
+      "id": "GITHUB_LIST_REPOSITORIES_ACCESSIBLE_TO_THE_APP_INSTALLATION||GITHUB_LIST_REPOSITORIES_ACCESSIBLE_TO_THE_USER_ACCESS_TOKEN||installation_id||42",
+      "from": "GITHUB_LIST_REPOSITORIES_ACCESSIBLE_TO_THE_APP_INSTALLATION",
+      "to": "GITHUB_LIST_REPOSITORIES_ACCESSIBLE_TO_THE_USER_ACCESS_TOKEN",
+      "param": "installation_id",
+      "entity_type": "github.installation_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": false,
+      "reason": "Tool lists repositories, not installation IDs as output."
+    },
+    {
+      "id": "GITHUB_LIST_REPOSITORY_WORKFLOWS||GITHUB_ENABLE_A_WORKFLOW||workflow_id||42",
+      "from": "GITHUB_LIST_REPOSITORY_WORKFLOWS",
+      "to": "GITHUB_ENABLE_A_WORKFLOW",
+      "param": "workflow_id",
+      "entity_type": "github.workflow_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listing workflows returns workflow IDs usable to enable a workflow."
+    },
+    {
+      "id": "GITHUB_LIST_LABELS_FOR_A_REPOSITORY||GITHUB_FIND_PULL_REQUESTS||label||42",
+      "from": "GITHUB_LIST_LABELS_FOR_A_REPOSITORY",
+      "to": "GITHUB_FIND_PULL_REQUESTS",
+      "param": "label",
+      "entity_type": "github.label_name",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Repository labels list returns label names usable for PR filtering."
+    },
+    {
+      "id": "GOOGLESUPER_UPDATE_TASK_LIST||GOOGLESUPER_GET_TASK||tasklist_id||42",
+      "from": "GOOGLESUPER_UPDATE_TASK_LIST",
+      "to": "GOOGLESUPER_GET_TASK",
+      "param": "tasklist_id",
+      "entity_type": "tasks.tasklist_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Updated task list returns its ID, usable to retrieve tasks."
+    },
+    {
+      "id": "GITHUB_LIST_REPOSITORY_WORKFLOWS||GITHUB_GET_A_WORKFLOW||workflow_id||42",
+      "from": "GITHUB_LIST_REPOSITORY_WORKFLOWS",
+      "to": "GITHUB_GET_A_WORKFLOW",
+      "param": "workflow_id",
+      "entity_type": "github.workflow_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listing workflows returns workflow IDs usable for lookup."
+    },
+    {
+      "id": "GITHUB_LIST_LABELS_FOR_A_SELF_HOSTED_RUNNER_FOR_A_REPOSITORY||GOOGLESUPER_FETCH_EMAILS||label_ids||42",
+      "from": "GITHUB_LIST_LABELS_FOR_A_SELF_HOSTED_RUNNER_FOR_A_REPOSITORY",
+      "to": "GOOGLESUPER_FETCH_EMAILS",
+      "param": "label_ids",
+      "entity_type": "gmail.label_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": false,
+      "reason": "GitHub runner labels are unrelated to Gmail label IDs."
+    },
+    {
+      "id": "GITHUB_LIST_CHECK_SUITES_FOR_A_GIT_REFERENCE||GITHUB_GET_A_CHECK_SUITE||check_suite_id||42",
+      "from": "GITHUB_LIST_CHECK_SUITES_FOR_A_GIT_REFERENCE",
+      "to": "GITHUB_GET_A_CHECK_SUITE",
+      "param": "check_suite_id",
+      "entity_type": "github.check_suite_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed check suites provide IDs for individual suite retrieval."
+    },
+    {
+      "id": "GITHUB_LIST_REVIEWS_FOR_A_PULL_REQUEST||GITHUB_SUBMIT_A_REVIEW_FOR_A_PULL_REQUEST||review_id||42",
+      "from": "GITHUB_LIST_REVIEWS_FOR_A_PULL_REQUEST",
+      "to": "GITHUB_SUBMIT_A_REVIEW_FOR_A_PULL_REQUEST",
+      "param": "review_id",
+      "entity_type": "github.review_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed reviews return review IDs usable for submission."
+    },
+    {
+      "id": "GITHUB_GET_THE_AUTHENTICATED_USER||GITHUB_GET_REPOSITORY_PERMISSIONS_FOR_A_USER||username||42",
+      "from": "GITHUB_GET_THE_AUTHENTICATED_USER",
+      "to": "GITHUB_GET_REPOSITORY_PERMISSIONS_FOR_A_USER",
+      "param": "username",
+      "entity_type": "github.username",
+      "kind": "id_lookup",
+      "confidence": 0.8,
+      "valid": true,
+      "reason": "Authenticated user profile returns username for permission lookup."
+    },
+    {
+      "id": "GITHUB_GET_THE_LATEST_RELEASE||GITHUB_CREATE_REACTION_FOR_A_RELEASE||release_id||42",
+      "from": "GITHUB_GET_THE_LATEST_RELEASE",
+      "to": "GITHUB_CREATE_REACTION_FOR_A_RELEASE",
+      "param": "release_id",
+      "entity_type": "github.release_id",
+      "kind": "id_lookup",
+      "confidence": 0.85,
+      "valid": true,
+      "reason": "Latest release returns release ID for adding reactions."
+    },
+    {
+      "id": "GITHUB_LIST_RELEASE_ASSETS||GITHUB_DELETE_A_RELEASE_ASSET||asset_id||42",
+      "from": "GITHUB_LIST_RELEASE_ASSETS",
+      "to": "GITHUB_DELETE_A_RELEASE_ASSET",
+      "param": "asset_id",
+      "entity_type": "github.asset_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed release assets provide asset IDs for deletion."
+    },
+    {
+      "id": "GOOGLESUPER_CREATE_LABEL||GOOGLESUPER_FETCH_EMAILS||label_ids||42",
+      "from": "GOOGLESUPER_CREATE_LABEL",
+      "to": "GOOGLESUPER_FETCH_EMAILS",
+      "param": "label_ids",
+      "entity_type": "gmail.label_id",
+      "kind": "creator",
+      "confidence": 0.9,
+      "valid": true,
+      "reason": "Created Gmail label returns label ID usable for email filtering."
+    },
+    {
+      "id": "GOOGLESUPER_LIST_THREADS||GOOGLESUPER_MOVE_TO_TRASH||message_id||42",
+      "from": "GOOGLESUPER_LIST_THREADS",
+      "to": "GOOGLESUPER_MOVE_TO_TRASH",
+      "param": "message_id",
+      "entity_type": "gmail.message_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": false,
+      "reason": "Thread listing returns thread IDs, not individual message IDs."
+    },
+    {
+      "id": "GITHUB_CREATE_A_DEPLOYMENT||GITHUB_DELETE_A_DEPLOYMENT||deployment_id||42",
+      "from": "GITHUB_CREATE_A_DEPLOYMENT",
+      "to": "GITHUB_DELETE_A_DEPLOYMENT",
+      "param": "deployment_id",
+      "entity_type": "github.deployment_id",
+      "kind": "creator",
+      "confidence": 0.9,
+      "valid": true,
+      "reason": "Created deployment ID can be used to delete that deployment."
+    },
+    {
+      "id": "GITHUB_ISSUES_LIST_EVENTS_FOR_REPO||GOOGLESUPER_DELETE_EVENT||event_id||42",
+      "from": "GITHUB_ISSUES_LIST_EVENTS_FOR_REPO",
+      "to": "GOOGLESUPER_DELETE_EVENT",
+      "param": "event_id",
+      "entity_type": "calendar.event_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": false,
+      "reason": "GitHub issue events are not Google Calendar events; different domains."
+    },
+    {
+      "id": "GITHUB_LIST_REPOSITORY_INVITATIONS_FOR_THE_AUTHENTICATED_USER||GITHUB_DECLINE_A_REPOSITORY_INVITATION||invitation_id||42",
+      "from": "GITHUB_LIST_REPOSITORY_INVITATIONS_FOR_THE_AUTHENTICATED_USER",
+      "to": "GITHUB_DECLINE_A_REPOSITORY_INVITATION",
+      "param": "invitation_id",
+      "entity_type": "github.invitation_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Listed invitation IDs can be used to decline a specific invitation."
+    },
+    {
+      "id": "GITHUB_LIST_TEAM_PROJECTS||GITHUB_ADD_PROJECT_COLLABORATOR||project_id||42",
+      "from": "GITHUB_LIST_TEAM_PROJECTS",
+      "to": "GITHUB_ADD_PROJECT_COLLABORATOR",
+      "param": "project_id",
+      "entity_type": "github.project_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Team project IDs from listing can identify a project to add collaborator."
+    },
+    {
+      "id": "GITHUB_LIST_LABELS_FOR_A_REPOSITORY||GITHUB_UPDATE_A_RELEASE_ASSET||label||42",
+      "from": "GITHUB_LIST_LABELS_FOR_A_REPOSITORY",
+      "to": "GITHUB_UPDATE_A_RELEASE_ASSET",
+      "param": "label",
+      "entity_type": "github.label_name",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": false,
+      "reason": "Repository labels are not asset labels; semantically different entities."
+    },
+    {
+      "id": "GITHUB_CREATE_A_CHECK_SUITE||GITHUB_REREQUEST_A_CHECK_SUITE||check_suite_id||42",
+      "from": "GITHUB_CREATE_A_CHECK_SUITE",
+      "to": "GITHUB_REREQUEST_A_CHECK_SUITE",
+      "param": "check_suite_id",
+      "entity_type": "github.check_suite_id",
+      "kind": "creator",
+      "confidence": 0.9,
+      "valid": true,
+      "reason": "Created check suite ID can be used to re-request that suite."
+    },
+    {
+      "id": "GITHUB_LIST_LABELS_FOR_A_SELF_HOSTED_RUNNER_FOR_A_REPOSITORY||GITHUB_GITHUB_SET_REPO_RUNNER_LABELS||runner_id||42",
+      "from": "GITHUB_LIST_LABELS_FOR_A_SELF_HOSTED_RUNNER_FOR_A_REPOSITORY",
+      "to": "GITHUB_GITHUB_SET_REPO_RUNNER_LABELS",
+      "param": "runner_id",
+      "entity_type": "github.runner_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Runner ID from listing labels identifies the runner to update labels for."
+    },
+    {
+      "id": "GITHUB_LIST_GIST_COMMITS||GITHUB_LIST_GIST_FORKS||gist_id||42",
+      "from": "GITHUB_LIST_GIST_COMMITS",
+      "to": "GITHUB_LIST_GIST_FORKS",
+      "param": "gist_id",
+      "entity_type": "github.gist_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Gist ID used to list commits can also list forks of same gist."
+    },
+    {
+      "id": "GITHUB_LIST_CODE_SCANNING_ALERTS_FOR_AN_ORGANIZATION||GITHUB_UPDATE_A_CODE_SCANNING_ALERT||alert_number||42",
+      "from": "GITHUB_LIST_CODE_SCANNING_ALERTS_FOR_AN_ORGANIZATION",
+      "to": "GITHUB_UPDATE_A_CODE_SCANNING_ALERT",
+      "param": "alert_number",
+      "entity_type": "github.alert_number",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Alert numbers from org listing can identify alerts to update."
+    },
+    {
+      "id": "GOOGLESUPER_FETCH_EMAILS||GOOGLESUPER_GET_ATTACHMENT||message_id||42",
+      "from": "GOOGLESUPER_FETCH_EMAILS",
+      "to": "GOOGLESUPER_GET_ATTACHMENT",
+      "param": "message_id",
+      "entity_type": "gmail.message_id",
+      "kind": "id_lookup",
+      "confidence": 0.95,
+      "valid": true,
+      "reason": "Fetched email message IDs can retrieve attachments from those messages."
+    }
+  ]
+}
