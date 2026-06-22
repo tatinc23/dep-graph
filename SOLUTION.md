@@ -116,7 +116,7 @@ Running against `data/graph.stub.json` (4 nodes, 3 edges):
 
 ## Live demo
 
-**https://composio-depgraph.pages.dev** — the interactive graph, deployed (also depgraph.tatinc.us, DNS propagating). Click "Demo" for the readme's flagship example.
+**https://depgraph.tatinc.us** — the interactive graph. Click "Demo" for a guided example.
 
 ## Planner CLI (what the graph is for)
 
