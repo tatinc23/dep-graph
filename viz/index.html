@@ -1018,6 +1018,8 @@ cy.on("tap", evt => {
   if (evt.target === cy) {
     cy.nodes().removeClass("faded highlighted");
     cy.edges().removeClass("faded highlighted");
+    // Re-hide labels in dense views so a background tap doesn't leave them lingering.
+    if (cy.nodes().length > 35) cy.nodes().addClass("hide-label");
   }
 });
 
