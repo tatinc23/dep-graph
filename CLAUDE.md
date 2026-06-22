@@ -24,3 +24,9 @@ and SOLUTION.md for the full approach.
 
 ## Deploy (live viz)
 `npx wrangler pages deploy viz --project-name=composio-depgraph --branch=main`
+
+## Gotchas
+- Viz layout: `cytoscape-fcose` needs `cose-base` + `layout-base` loaded BEFORE it (all vendored in `viz/vendor/`, load order matters). Missing them = fcose silently no-ops to the weaker `cose` layout → unreadable hairball.
+- Deploy cache: `depgraph.tatinc.us` edge-caches HTML. `viz/_headers` sets `no-cache` on `/` and `*.html`; after deploy, verify with a `?cachebust=` query if the bare URL looks stale.
+- The committed graph is the HEURISTIC baseline (build-time LLM verify is optional / may return nothing usable) — don't claim LLM-verified confidences in docs.
+- Repo is PUBLIC: keep CLAUDE.md public-safe. Personal/process/session notes go in a gitignored `.claude.local.md`, never here.
