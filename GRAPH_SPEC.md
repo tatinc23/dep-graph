@@ -72,6 +72,5 @@ Hard requirements (the readme's own examples MUST hold in the final graph):
 2. send-email `recipient_email` is `either` + has `resolver` edges from contacts/people search tools
 3. GitHub: issue ops needing `issue_number` ← list/search issues; PR ops ← list PRs; etc.
 
-Working dir: /Users/cawc/Github/dep-graph. Inputs: data/googlesuper_tools.json, data/github_tools.json.
-Env: .env has COMPOSIO_API_KEY and OPENROUTER_API_KEY (https://openrouter.ai/api/v1).
-Gotcha: sandboxed node has no DNS — network scripts need sandbox disabled.
+Inputs: data/googlesuper_tools.json, data/github_tools.json (regenerate with `npm run fetch`).
+Build env: a `.env` with COMPOSIO_API_KEY and OPENROUTER_API_KEY (https://openrouter.ai/api/v1) is only needed to rebuild from scratch.

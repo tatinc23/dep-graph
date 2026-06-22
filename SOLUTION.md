@@ -28,7 +28,7 @@ For each consumer param with a non-null entity type the builder searches every t
 | `resolver` | Converts human input to a required value | `SEARCH_PEOPLE` → `email` in SEND_EMAIL |
 | `creator` | Creates the resource whose id is then used | `CREATE_LABEL` → `label_id` in ADD_LABEL_TO_EMAIL |
 
-Confidence is set heuristically (0.9+ for exact name matches, 0.7 for semantic-only) and elevated to 0.95+ after an LLM verification pass using `scripts/build-graph.mjs` with the OpenRouter key.
+Confidence is set heuristically (0.9+ for exact name matches, 0.7 for semantic-only). `scripts/build-graph.mjs` also supports an optional LLM verification pass (via the OpenRouter key) to re-score borderline candidates; the committed graph is the heuristic baseline. Edge quality is measured separately by the LLM judge (see "Edge precision" below).
 
 ### 3. Why this beats naive pairwise LLM matching
 
@@ -116,7 +116,7 @@ Running against `data/graph.stub.json` (4 nodes, 3 edges):
 
 ## Live demo
 
-**https://composio-depgraph.pages.dev** — the interactive graph, deployed (also depgraph.tatinc.us, DNS propagating). Click "Demo" for the readme's flagship example.
+**https://depgraph.tatinc.us** — the interactive graph. Click "Demo" for a guided example.
 
 ## Planner CLI (what the graph is for)
 
