@@ -67,6 +67,18 @@ Be upfront that the task originated as a Composio take-home that Ken built (with
 ### 6. README
 Structure: hero line + screenshot → **Background** (honest: started as a Composio take-home I built with Claude Code, open-sourced as a portfolio piece / useful tool) → problem (Ken's words) → approach (entity-type resolution + the O(unique_types × tools) insight vs. naive pairwise) → results (1,046 nodes / 8,543 edges / eval 29/29 / ~82% judge precision) → live demo link → how to run → **Built on Composio** credit (→ composio.dev) → architecture/repo map. Link to `SOLUTION.md` for depth.
 
+### 7. Graph readability + onboarding (the default experience) — IMPORTANT
+The live viz currently opens as an unreadable "hairball": dense hubs overlap and labels stack. Diagnosed root causes (verified on live site):
+1. **`fcose` layout silently not loading** — `cytoscapeFcose` is `undefined` on the live page, but the script's `onerror` didn't fire, so `FCOSE_FAILED` stays false and the code falls back to the weaker `cose` layout (which packs dense hubs tightly). **Self-host the fcose file** (vendor it into `viz/`) so it can't silently fail to a worse layout; verify `cytoscapeFcose` is defined before relying on it.
+2. **Spacing too low for node/label size** — increase `nodeRepulsion`, `idealEdgeLength`, `nodeSeparation`; reduce node size and/or **show labels only on hover/zoom** so they never collide.
+3. **Default view is the densest possible** — it shows the top-30-by-degree (most-connected) nodes per toolkit. Replace the default with a **guided example**: open directly into the flagship neighborhood (`GOOGLESUPER_REPLY_TO_THREAD` + its producers: List Threads, Fetch Emails, Search People), spread and readable, with the side panel pre-opened explaining it.
+4. **No onboarding** — add a short, dismissible **"How to use" card** on first load: *"Each node is a tool. An arrow A → B means run A first to get a value B needs. Click any tool to see its dependencies. Search a tool, or hit ▶ Demo for another example."*
+
+Implementation notes:
+- The existing "Demo" logic already builds the focused flagship neighborhood and fits with padding — reuse it as the initial load state instead of `applyFilters("")` → `getTopByDegree()`.
+- Keep the "Show All" / overview path available for users who want breadth; just don't make it the cold-open.
+- Iterate visually (screenshot via Chrome DevTools) until labels are readable and nodes don't overlap at default zoom, desktop + mobile width.
+
 ## Non-Goals (YAGNI)
 - No re-architecture of the graph builder, eval, or viz internals.
 - No new features (no new toolkits, no new edge kinds).
@@ -80,4 +92,5 @@ Structure: hero line + screenshot → **Background** (honest: started as a Compo
 4. `node scripts/build-viz.mjs` regenerates `viz/graph-data.js` from `graph.json`.
 5. New `README.md` (honest Background + "Built on Composio" credit) + `LICENSE` (MIT/TAT Inc) present; no Composio brief verbatim.
 6. Live viz redeployed, loads, shows GitHub link + "Powered by Composio" link, demo works.
-7. Repo NOT made public and NOT pushed until Ken explicitly approves.
+7. **Graph readability:** fcose loads (self-hosted, `cytoscapeFcose` defined), default view opens into the readable guided example with the how-to card, nodes/labels don't overlap at default zoom on desktop and mobile width.
+8. Repo NOT made public and NOT pushed until Ken explicitly approves.
