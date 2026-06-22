@@ -568,12 +568,12 @@ async function main() {
       }
       generatedBy = `heuristics + LLM (${activeModel}, ${applied}/${ambiguous.length} ambiguous params typed)`;
     } else if (llmDead) {
-      generatedBy = "heuristics-only (OpenRouter key dead / unauthorized)";
+      generatedBy = "entity-type resolution + structural matching (heuristic; LLM verify skipped — OpenRouter key unavailable)";
     } else {
-      generatedBy = "heuristics-only (LLM returned no usable results)";
+      generatedBy = "entity-type resolution + structural matching (heuristic; LLM verify returned no usable results)";
     }
   } else {
-    generatedBy = "heuristics-only (no ambiguous params or no API key)";
+    generatedBy = "entity-type resolution + structural matching (heuristic; no ambiguous params to verify)";
   }
 
   // strip temp _examples
