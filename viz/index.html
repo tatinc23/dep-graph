@@ -3,12 +3,14 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Tool Dependency Graph — Composio</title>
+<title>Tool Dependency Graph — agent pre-flight planner</title>
 
-<!-- Cytoscape.js from CDN -->
-<script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
-<!-- fcose layout — graceful fallback to cose if fails -->
-<script src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js" onerror="window.FCOSE_FAILED=true"></script>
+<!-- Cytoscape.js + fcose layout chain (vendored, pinned — no CDN dependency).
+     Load order matters: fcose needs cose-base needs layout-base. -->
+<script src="vendor/cytoscape.min.js"></script>
+<script src="vendor/layout-base.js"></script>
+<script src="vendor/cose-base.js"></script>
+<script src="vendor/cytoscape-fcose.js" onerror="window.FCOSE_FAILED=true"></script>
 
 <!-- Data injected by build-viz.mjs -->
 <script src="graph-data.js"></script>
@@ -345,6 +347,27 @@ input[type=range] { padding: 0; height: 4px; cursor: pointer; width: 80px; accen
 }
 #hint strong { color: var(--text); }
 
+/* ── HOW-TO INTRO CARD ── */
+#intro-card {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: min(420px, 90vw); background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 12px; padding: 24px;
+  z-index: 50; box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+}
+#intro-card.hidden { display: none; }
+#intro-card h2 { font-size: 16px; color: var(--accent); margin-bottom: 10px; }
+#intro-card p, #intro-card li { font-size: 13px; color: var(--text); line-height: 1.5; }
+#intro-card ul { margin: 10px 0 0 18px; }
+#intro-card li { margin-bottom: 4px; }
+#intro-close {
+  position: absolute; top: 10px; right: 12px; background: none; border: none;
+  color: var(--text-dim); font-size: 20px; cursor: pointer; line-height: 1;
+}
+#intro-go {
+  margin-top: 16px; background: var(--accent); color: #fff; border: none;
+  border-radius: 6px; padding: 8px 16px; font-size: 13px; cursor: pointer;
+}
+
 /* ── TOOLTIP ── */
 #tooltip {
   position: absolute;
@@ -419,6 +442,13 @@ input[type=range] { padding: 0; height: 4px; cursor: pointer; width: 80px; accen
   <button id="btn-demo">▶ Demo</button>
   <button id="btn-reset">↺ Reset</button>
   <button id="btn-all">Show All</button>
+
+  <a id="composio-link" href="https://composio.dev" target="_blank" rel="noopener"
+     style="margin-left:auto;font-size:12px;color:var(--text-dim);text-decoration:none;white-space:nowrap">
+     Powered by Composio ↗</a>
+  <a id="repo-link" href="https://github.com/tatinc23/dep-graph" target="_blank" rel="noopener"
+     style="font-size:12px;color:var(--accent);text-decoration:none;white-space:nowrap;margin-left:12px">
+     GitHub ↗</a>
 </div>
 
 <!-- MAIN -->
@@ -460,6 +490,21 @@ input[type=range] { padding: 0; height: 4px; cursor: pointer; width: 80px; accen
 
 <!-- TOOLTIP -->
 <div id="tooltip"></div>
+
+<!-- HOW-TO INTRO CARD -->
+<div id="intro-card" class="hidden">
+  <button id="intro-close" aria-label="Dismiss">×</button>
+  <h2>How to read this graph</h2>
+  <p>Each <strong>node</strong> is a tool. An arrow <strong>A → B</strong> means
+     run <strong>A</strong> first to get a value that <strong>B</strong> needs
+     (e.g. a thread id, a pull-request number).</p>
+  <ul>
+    <li><strong>Click</strong> any tool to see what must run before it.</li>
+    <li><strong>Search</strong> a tool by name up top.</li>
+    <li>Hit <strong>▶ Demo</strong> for a guided example.</li>
+  </ul>
+  <button id="intro-go">Got it</button>
+</div>
 
 <script>
 (function () {
@@ -579,6 +624,10 @@ const cy = cytoscape({
       }
     },
     {
+      selector: "node.hide-label",
+      style: { "text-opacity": 0 }
+    },
+    {
       selector: "node:selected",
       style: {
         "border-color": "#fff",
@@ -647,19 +696,21 @@ function runLayout(eles) {
         animate: nodeCount < 300,
         animationDuration: 600,
         packComponents: true,
-        nodeRepulsion: 4500,
-        idealEdgeLength: 80,
+        nodeRepulsion: 14000,
+        idealEdgeLength: 150,
         edgeElasticity: 0.45,
-        gravity: 0.25,
-        nodeSeparation: 75,
+        gravity: 0.15,
+        gravityRange: 4.0,
+        nodeSeparation: 160,
+        padding: 60,
         stop: () => { layoutRunning = false; },
       }
     : {
         name: "cose",
         animate: nodeCount < 200,
         animationDuration: 600,
-        nodeRepulsion: 4500,
-        idealEdgeLength: 80,
+        nodeRepulsion: 12000,
+        idealEdgeLength: 150,
         gravity: 10,
         stop: () => { layoutRunning = false; },
       };
@@ -676,6 +727,11 @@ function loadSubset(nodeIds, edgeFilter) {
   cy.elements().remove();
   const els = buildElements(nodeIds, edgeFilter);
   cy.add(els);
+  // In dense views, hide labels by default (shown on hover/highlight) so they don't collide.
+  const dense = nodeIds.length > 35;
+  cy.batch(() => {
+    cy.nodes().forEach(n => { dense ? n.addClass("hide-label") : n.removeClass("hide-label"); });
+  });
   runLayout();
   document.getElementById("hint").style.opacity = nodeIds.length > 0 ? "0" : "1";
 }
@@ -776,7 +832,7 @@ document.getElementById("filter-conf").addEventListener("input", e => {
 });
 
 // ── Demo button ────────────────────────────────────────────────────────────
-document.getElementById("btn-demo").addEventListener("click", () => {
+function showGuidedExample() {
   // Find flagship node
   let flagship = nodes.find(n => n.id === "GOOGLESUPER_REPLY_TO_THREAD");
   if (!flagship) {
@@ -814,7 +870,8 @@ document.getElementById("btn-demo").addEventListener("click", () => {
       showNodePanel(flagship);
     }
   }, 800);
-});
+}
+document.getElementById("btn-demo").addEventListener("click", showGuidedExample);
 
 // ── Reset button ───────────────────────────────────────────────────────────
 document.getElementById("btn-reset").addEventListener("click", () => {
@@ -942,6 +999,7 @@ cy.on("tap", "node", evt => {
   cy.nodes().not(hood).addClass("faded");
   cy.edges().not(hood.connectedEdges()).addClass("faded");
   hood.removeClass("faded").addClass("highlighted");
+  hood.removeClass("hide-label");
   hood.connectedEdges().removeClass("faded").addClass("highlighted");
   showNodePanel(fullNode || nd);
 });
@@ -988,6 +1046,7 @@ cy.on("mousemove", evt => {
 
 // Node tooltip on mouseover
 cy.on("mouseover", "node", evt => {
+  evt.target.removeClass("hide-label");
   const nd = evt.target.data();
   const inDeg = edges.filter(e => e.to === nd.id).length;
   const outDeg = edges.filter(e => e.from === nd.id).length;
@@ -999,10 +1058,26 @@ cy.on("mouseover", "node", evt => {
   `;
   tooltip.style.display = "block";
 });
-cy.on("mouseout", "node", () => { tooltip.style.display = "none"; });
+cy.on("mouseout", "node", evt => {
+  tooltip.style.display = "none";
+  if (cy.nodes().length > 35 && !evt.target.hasClass("highlighted")) evt.target.addClass("hide-label");
+});
 
-// ── Initial load ───────────────────────────────────────────────────────────
-applyFilters("");
+// ── How-to intro card ───────────────────────────────────────────────────────
+function maybeShowIntro() {
+  try { if (localStorage.getItem("depgraph_seen_intro")) return; } catch (e) {}
+  document.getElementById("intro-card").classList.remove("hidden");
+}
+function dismissIntro() {
+  document.getElementById("intro-card").classList.add("hidden");
+  try { localStorage.setItem("depgraph_seen_intro", "1"); } catch (e) {}
+}
+document.getElementById("intro-close").addEventListener("click", dismissIntro);
+document.getElementById("intro-go").addEventListener("click", dismissIntro);
+
+// ── Initial load: open into the readable guided example ──────────────────────
+showGuidedExample();
+maybeShowIntro();
 
 })();
 </script>
