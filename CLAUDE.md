@@ -1,14 +1,26 @@
-# dep-graph — Composio hiring task (SUBMITTED 2026-06-11)
+# dep-graph — project notes
 
-Tool dependency graph for Composio googlesuper + github toolkits.
-Submitted via POST to eng.hiring.composio.io/api/submit (email emailme@tatinc.us, task=dep) — HTTP 200.
-upload.sh was unusable: their collector installer endpoint returned 500 (even --skip-session needs it).
+Infers a typed tool-dependency graph from JSON-Schema tool catalogs, demonstrated
+on Composio's `googlesuper` + `github` toolkits. See README.md for the overview
+and SOLUTION.md for the full approach.
 
-## Stack / commands
-- Node 22 (no bun). Network scripts need unsandboxed bash (sandbox blocks node DNS).
-- .env (gitignored from zip): COMPOSIO_API_KEY + OPENROUTER_API_KEY (from scaffold.sh).
-- Rebuild: node scripts/fetch-tools.mjs → node scripts/build-graph.mjs → node scripts/eval.mjs → node scripts/build-viz.mjs → open viz/index.html
+## Stack
+- Node 22+ (ESM, global `fetch`, no runtime dependencies).
+- Visualization: Cytoscape.js + cytoscape-fcose (vendored in `viz/vendor/`).
+- Live viz hosted on Cloudflare Pages (project `composio-depgraph`).
 
-## Final state
-- 1046 nodes, 8543 edges, 53 entity types. Eval: GT 29/29, coverage 100%, sanity 0.
-- Original zip copy at "/Applications/dep-graph 3" (untouched).
+## Commands
+- `npm run eval` — validate `data/graph.json` against the ground-truth suite.
+- `npm run plan <TOOL_SLUG>` — print a pre-execution plan for a tool.
+- `npm run fetch` → `npm run build` → `npm run viz` — full rebuild (needs `.env`).
+- `open viz/index.html` — interactive graph locally.
+
+## Rebuild prerequisites
+- `.env` with `COMPOSIO_API_KEY` and `OPENROUTER_API_KEY` (only for `fetch`/`build`).
+- The committed `data/graph.json` + `viz/graph-data.js` let you run eval/plan/viz with no key.
+
+## Data contract
+`GRAPH_SPEC.md` is the source of truth for `data/graph.json` (entity types, nodes, edges).
+
+## Deploy (live viz)
+`npx wrangler pages deploy viz --project-name=composio-depgraph --branch=main`
